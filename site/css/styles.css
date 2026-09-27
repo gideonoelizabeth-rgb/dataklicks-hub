@@ -177,10 +177,10 @@ img { max-width: 100%; height: auto; display: block; }
 }
 .logo:hover { color: var(--royal-blue); }
 .logo-mark {
-  width: 34px;
-  height: 34px;
+  width: 40px;
+  height: 40px;
   border-radius: 8px;
-  background: linear-gradient(135deg, var(--royal-blue) 0%, var(--royal-blue-light) 100%);
+  background: var(--royal-blue);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -188,6 +188,14 @@ img { max-width: 100%; height: auto; display: block; }
   font-weight: 800;
   font-size: 0.9375rem;
   box-shadow: 0 4px 12px rgba(35, 70, 211, 0.25);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.logo-mark img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .nav-list {
@@ -524,6 +532,35 @@ img { max-width: 100%; height: auto; display: block; }
     radial-gradient(circle at 20% 30%, rgba(255,255,255,0.15) 0%, transparent 40%),
     radial-gradient(circle at 80% 70%, rgba(255,255,255,0.1) 0%, transparent 40%);
 }
+.course-thumb.has-photo {
+  padding: 0;
+  background: var(--midnight-navy);
+}
+.course-thumb.has-photo::before {
+  background: linear-gradient(180deg, rgba(11,18,32,0.15) 0%, rgba(11,18,32,0.65) 100%);
+  z-index: 2;
+}
+.course-thumb.has-photo img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+}
+.course-thumb.has-photo .course-thumb-label {
+  position: relative;
+  z-index: 3;
+  padding: 1rem;
+  align-self: flex-end;
+  width: 100%;
+  text-align: left;
+  font-size: 1.125rem;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+.course-thumb.has-photo .course-badge {
+  z-index: 3;
+}
 .course-thumb-2 { background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); }
 .course-thumb-3 { background: linear-gradient(135deg, #059669 0%, #10b981 100%); }
 .course-thumb-4 { background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%); }
@@ -660,6 +697,79 @@ img { max-width: 100%; height: auto; display: block; }
   position: relative;
   z-index: 1;
 }
+.split-visual.has-photo {
+  padding: 0;
+  background: var(--midnight-navy);
+}
+.split-visual.has-photo::before,
+.split-visual.has-photo::after { display: none; }
+.split-visual.has-photo > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+.split-visual.has-photo .photo-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(11,18,32,0.55) 0%, rgba(35,70,211,0.55) 100%);
+  z-index: 1;
+}
+.split-visual.has-photo > *:not(img):not(.photo-overlay) {
+  position: relative;
+  z-index: 2;
+}
+
+/* Service card with photo header */
+.card.card-with-photo {
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.card.card-with-photo .card-photo {
+  height: 160px;
+  overflow: hidden;
+  position: relative;
+  background: linear-gradient(135deg, var(--royal-blue), var(--royal-blue-light));
+}
+.card.card-with-photo .card-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+.card.card-with-photo:hover .card-photo img {
+  transform: scale(1.06);
+}
+.card.card-with-photo .card-body {
+  padding: 1.75rem 2rem 2rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.card.card-with-photo .card-body .card-link { margin-top: auto; }
+
+/* Impact photo grid */
+.impact-photos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.impact-photos img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  aspect-ratio: 4/3;
+  border-radius: var(--radius-md);
+}
+@media (max-width: 600px) {
+  .impact-photos { grid-template-columns: 1fr; }
+}
 .split-copy h2 { margin-bottom: 1rem; }
 .split-copy p { font-size: 1.0625rem; margin-bottom: 1rem; }
 .split-copy .btn { margin-top: 0.5rem; }
@@ -773,6 +883,15 @@ img { max-width: 100%; height: auto; display: block; }
   font-size: 4rem;
   font-weight: 800;
   box-shadow: 0 12px 32px rgba(35, 70, 211, 0.25);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.founder-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 25%;
+  display: block;
 }
 .founder-copy .eyebrow { margin-bottom: 0.5rem; }
 .founder-copy h3 { font-size: 1.75rem; margin-bottom: 0.75rem; }
