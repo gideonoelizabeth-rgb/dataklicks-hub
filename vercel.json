@@ -1,5 +1,25 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "cleanUrls": true,
-  "trailingSlash": false
+  "trailingSlash": false,
+  "redirects": [
+    { "source": "/designlikeaprowithai", "destination": "/DesignlikeaPROwithAI", "permanent": false },
+    { "source": "/DESIGNLIKEAPROWITHAI", "destination": "/DesignlikeaPROwithAI", "permanent": false },
+    { "source": "/Designlikeaprowithai", "destination": "/DesignlikeaPROwithAI", "permanent": false },
+    { "source": "/DesignLikeAProWithAI", "destination": "/DesignlikeaPROwithAI", "permanent": false },
+    { "source": "/designlikeapro", "destination": "/DesignlikeaPROwithAI", "permanent": false },
+    { "source": "/design-like-a-pro-with-ai", "destination": "/DesignlikeaPROwithAI", "permanent": false },
+    { "source": "/Design-Like-A-Pro-With-AI", "destination": "/DesignlikeaPROwithAI", "permanent": false },
+    { "source": "/design-like-a-pro-with-AI", "destination": "/DesignlikeaPROwithAI", "permanent": false },
+    { "source": "/register", "destination": "/DesignlikeaPROwithAI", "permanent": false },
+    { "source": "/Register", "destination": "/DesignlikeaPROwithAI", "permanent": false },
+    { "source": "/REGISTER", "destination": "/DesignlikeaPROwithAI", "permanent": false },
+    { "source": "/training", "destination": "/DesignlikeaPROwithAI", "permanent": false },
+    { "source": "/Training", "destination": "/DesignlikeaPROwithAI", "permanent": false },
+    { "source": "/ai-class", "destination": "/DesignlikeaPROwithAI", "permanent": false },
+    { "source": "/AI-class", "destination": "/DesignlikeaPROwithAI", "permanent": false },
+    { "source": "/create-smarter-with-ai", "destination": "/DesignlikeaPROwithAI", "permanent": false },
+    { "source": "/CreateSmarterWithAI", "destination": "/DesignlikeaPROwithAI", "permanent": false },
+    { "source": "/smarterwithai", "destination": "/DesignlikeaPROwithAI", "permanent": false }
+  ]
 }
