@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Create Smarter with AI — One-Day Live Class | DataKlicks Hub</title>
+<meta name="description" content="Design like a Pro with AI. A one-day live class on Fri Oct 9, 2026 at 7 PM WAT on Google Meet. Learn to create carousels, content, designs and prompts with AI. ₦20,000, all tools included." />
+<meta property="og:title" content="Create Smarter with AI — One-Day Live Class" />
+<meta property="og:description" content="Design like a Pro with AI. Fri Oct 9, 2026 · 7 PM WAT · Google Meet · ₦20,000." />
+<meta property="og:image" content="images/training-ai-flyer.jpg" />
+<meta property="og:type" content="website" />
+<link rel="icon" type="image/png" href="images/logo.png">
+<link rel="apple-touch-icon" href="images/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css" />
+<style>
+  .training-hero {
+    padding: 3rem 0 4rem;
+    background: linear-gradient(135deg, var(--royal-blue) 0%, var(--royal-blue-dark) 100%);
+    color: var(--white);
+    position: relative;
+    overflow: hidden;
+  }
+  .training-hero::before,
+  .training-hero::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    pointer-events: none;
+  }
+  .training-hero::before { top: -120px; right: -80px; width: 340px; height: 340px; }
+  .training-hero::after { bottom: -140px; left: -80px; width: 380px; height: 380px; }
+  .training-hero .container { position: relative; z-index: 1; }
+  .training-hero-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    gap: 3rem;
+    align-items: center;
+  }
+  .training-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255,255,255,0.15);
+    color: var(--white);
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 1.25rem;
+  }
+  .training-badge::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #EF4444;
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.25);
+  }
+  .training-hero h1 {
+    color: var(--white);
+    font-size: clamp(2.25rem, 5vw, 3.75rem);
+    margin: 0.5rem 0 1rem;
+  }
+  .training-hero .lead {
+    font-size: 1.125rem;
+    color: rgba(255,255,255,0.9);
+    margin-bottom: 1.5rem;
+    max-width: 560px;
+  }
+  .training-meta {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    margin: 1.75rem 0;
+  }
+  .training-meta-item {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: var(--radius-md);
+    padding: 1rem 1.125rem;
+  }
+  .training-meta-item .label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 0.375rem;
+  }
+  .training-meta-item .value {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    color: var(--white);
+    font-size: 1rem;
+  }
+  .training-price {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    background: var(--white);
+    color: var(--royal-blue);
+    padding: 0.75rem 1.25rem;
+    border-radius: var(--radius-md);
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+  }
+  .training-price .amount {
+    font-family: 'Manrope', sans-serif;
+    font-size: 1.75rem;
+    letter-spacing: -0.02em;
+  }
+  .training-price .amount-sub {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--gray-600);
+  }
+  .training-flyer {
+    background: rgba(0,0,0,0.15);
+    border-radius: var(--radius-lg);
+    padding: 1rem;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.25);
+    max-width: 460px;
+    margin-left: auto;
+  }
+  .training-flyer img {
+    width: 100%;
+    display: block;
+    border-radius: var(--radius-md);
+  }
+
+  .training-body {
+    padding: 4rem 0;
+    background: var(--soft-blue-white);
+  }
+  .training-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem;
+    align-items: start;
+  }
+  .training-syllabus {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: 2.25rem;
+    border: 1px solid var(--gray-200);
+    box-shadow: var(--shadow-sm);
+  }
+  .training-syllabus h2 { font-size: 1.5rem; margin-bottom: 1.5rem; }
+  .syllabus-list { list-style: none; }
+  .syllabus-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1.125rem 0;
+    border-bottom: 1px solid var(--gray-200);
+  }
+  .syllabus-item:last-child { border-bottom: none; }
+  .syllabus-num {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--soft-blue-white);
+    color: var(--royal-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 800;
+    font-size: 0.875rem;
+    flex-shrink: 0;
+  }
+  .syllabus-body h4 {
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+    color: var(--midnight-navy);
+  }
+  .syllabus-body p {
+    font-size: 0.9375rem;
+    color: var(--gray-600);
+    margin: 0;
+  }
+
+  .register-card {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: 2.25rem;
+    border: 1px solid var(--gray-200);
+    box-shadow: var(--shadow-md);
+    position: sticky;
+    top: 100px;
+  }
+  .register-card h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+  .register-card > p { color: var(--gray-600); margin-bottom: 1.5rem; font-size: 0.9375rem; }
+
+  .payment-card {
+    display: none;
+    background: linear-gradient(135deg, var(--midnight-navy) 0%, var(--royal-blue-dark) 100%);
+    color: var(--white);
+    border-radius: var(--radius-lg);
+    padding: 2.25rem;
+    box-shadow: var(--shadow-lg);
+    animation: slide-up 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .payment-card.visible { display: block; }
+  .payment-card h2 { color: var(--white); font-size: 1.5rem; margin-bottom: 0.5rem; }
+  .payment-card .payment-lead {
+    color: rgba(255,255,255,0.85);
+    margin-bottom: 1.5rem;
+    font-size: 0.9375rem;
+  }
+  .payment-details {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .payment-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.875rem 0;
+    border-bottom: 1px dashed rgba(255,255,255,0.15);
+    gap: 1rem;
+  }
+  .payment-row:last-child { border-bottom: none; }
+  .payment-row .label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(255,255,255,0.6);
+    font-weight: 600;
+  }
+  .payment-row .value {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    color: var(--white);
+    font-size: 1.0625rem;
+    text-align: right;
+  }
+  .payment-row .value.amount { color: #7DD3FC; font-size: 1.25rem; }
+  .payment-row .value .copy-btn {
+    background: rgba(255,255,255,0.12);
+    border: none;
+    color: var(--white);
+    padding: 0.375rem 0.625rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.75rem;
+    margin-left: 0.5rem;
+    font-family: inherit;
+    transition: background 0.2s;
+  }
+  .payment-row .value .copy-btn:hover { background: rgba(255,255,255,0.22); }
+  .payment-row .value .copy-btn.copied { background: #10b981; }
+  .payment-steps {
+    background: rgba(0,0,0,0.15);
+    border-radius: var(--radius-md);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.9375rem;
+    color: rgba(255,255,255,0.9);
+  }
+  .payment-steps h4 {
+    color: var(--white);
+    margin-bottom: 0.75rem;
+    font-size: 0.9375rem;
+  }
+  .payment-steps ol { padding-left: 1.25rem; }
+  .payment-steps li { margin-bottom: 0.5rem; }
+  .payment-cta {
+    background: #25D366;
+    color: var(--white);
+    padding: 1rem 1.5rem;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.625rem;
+    width: 100%;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.2s;
+    font-size: 0.9375rem;
+  }
+  .payment-cta:hover {
+    background: #128C7E;
+    color: var(--white);
+    transform: translateY(-1px);
+  }
+
+  @media (max-width: 900px) {
+    .training-hero-grid { grid-template-columns: 1fr; }
+    .training-flyer { margin: 0 auto; }
+    .training-grid { grid-template-columns: 1fr; }
+    .training-meta { grid-template-columns: 1fr; }
+    .register-card { position: static; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="logo"><span class="logo-mark"><img src="images/logo.png" alt="DataKlicks Hub logo"/></span><span>DataKlicks Hub</span></a>
+    <nav aria-label="Primary">
+      <ul class="nav-list">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="courses.html">Courses</a></li>
+        <li><a href="about.html">About Us</a></li>
+        <li><a href="blog.html">Blog</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </nav>
+    <div class="header-cta">
+      <a href="#register" class="btn btn-primary">Register</a>
+      <button class="menu-toggle" aria-label="Toggle menu" aria-expanded="false">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<section class="training-hero">
+  <div class="container">
+    <div class="training-hero-grid">
+      <div>
+        <span class="training-badge">One-Day Live Class</span>
+        <h1>Create Smarter with AI.</h1>
+        <p class="lead">Design like a Pro with AI. In one focused evening, learn to plan and publish scroll-stopping carousels, content, brand designs and prompts — with AI doing the heavy lifting.</p>
+
+        <div class="training-price">
+          <span class="amount">₦20,000</span>
+          <span class="amount-sub">· one day, all tools</span>
+        </div>
+
+        <div class="training-meta">
+          <div class="training-meta-item">
+            <div class="label">Date</div>
+            <div class="value">Fri, Oct 9, 2026</div>
+          </div>
+          <div class="training-meta-item">
+            <div class="label">Time</div>
+            <div class="value">7:00 PM WAT</div>
+          </div>
+          <div class="training-meta-item">
+            <div class="label">Where</div>
+            <div class="value">Google Meet</div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+          <a href="#register" class="btn" style="background:var(--white);color:var(--royal-blue);">Register Now →</a>
+          <a href="https://wa.me/2348065371750?text=Hello%20DataKlicks%20Hub%2C%20I%20have%20a%20question%20about%20the%20Create%20Smarter%20with%20AI%20class." target="_blank" rel="noopener" class="btn btn-outline-light">Ask a Question</a>
+        </div>
+        <p style="margin-top:1.5rem;font-size:0.8125rem;color:rgba(255,255,255,0.75);">Limited slots · Secure yours early · Registration & payment are compulsory.</p>
+      </div>
+      <div class="training-flyer">
+        <img src="images/training-ai-flyer.jpg" alt="Create Smarter with AI — one-day live class flyer" />
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="training-body">
+  <div class="container">
+    <div class="training-grid">
+
+      <!-- Syllabus -->
+      <div class="training-syllabus">
+        <span class="eyebrow">What you'll learn</span>
+        <h2>Five outcomes in one evening.</h2>
+        <ul class="syllabus-list">
+          <li class="syllabus-item">
+            <div class="syllabus-num">01</div>
+            <div class="syllabus-body">
+              <h4>Scroll-stopping carousels</h4>
+              <p>Plan, write and design them with AI — end-to-end, from hook to CTA.</p>
+            </div>
+          </li>
+          <li class="syllabus-item">
+            <div class="syllabus-num">02</div>
+            <div class="syllabus-body">
+              <h4>Content that sounds like you</h4>
+              <p>Captions, posts, scripts and hooks with your own voice, not the AI's.</p>
+            </div>
+          </li>
+          <li class="syllabus-item">
+            <div class="syllabus-num">03</div>
+            <div class="syllabus-body">
+              <h4>Design without a designer</h4>
+              <p>Flyers, thumbnails and brand graphics — fast, on-brand and repeatable.</p>
+            </div>
+          </li>
+          <li class="syllabus-item">
+            <div class="syllabus-num">04</div>
+            <div class="syllabus-body">
+              <h4>Prompting that works</h4>
+              <p>Get great results on the first try. Fewer retries, better output.</p>
+            </div>
+          </li>
+          <li class="syllabus-item">
+            <div class="syllabus-num">05</div>
+            <div class="syllabus-body">
+              <h4>Your AI content workflow</h4>
+              <p>From idea to posted in less time — an end-to-end system you can reuse.</p>
+            </div>
+          </li>
+        </ul>
+
+        <div style="margin-top:1.5rem;padding:1.25rem;background:var(--soft-blue-white);border-radius:var(--radius-md);border-left:3px solid var(--royal-blue);">
+          <div style="font-size:0.75rem;color:var(--royal-blue);font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.375rem;">Who this is for</div>
+          <p style="margin:0;font-size:0.9375rem;color:var(--gray-700);">Creators, small business owners, marketers, students and professionals who want to move faster with AI without sounding like AI.</p>
+        </div>
+      </div>
+
+      <!-- Registration + Payment -->
+      <div>
+        <div class="register-card" id="register">
+          <span class="eyebrow">Registration</span>
+          <h2>Secure your slot.</h2>
+          <p>Fill this form and we'll show you the payment details on the next step.</p>
+          <form id="trainingForm" novalidate>
+            <div class="form-group">
+              <label for="tf-name">Full Name</label>
+              <input type="text" id="tf-name" name="name" required autocomplete="name" />
+            </div>
+            <div class="form-group">
+              <label for="tf-email">Email Address</label>
+              <input type="email" id="tf-email" name="email" required autocomplete="email" />
+            </div>
+            <div class="form-row">
+              <div class="form-group" style="margin-bottom:0;">
+                <label for="tf-country">Country</label>
+                <input type="text" id="tf-country" name="country" required placeholder="Nigeria" autocomplete="country-name" />
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label for="tf-phone">Phone Number</label>
+                <input type="tel" id="tf-phone" name="phone" required placeholder="+234 806 537 1750" autocomplete="tel" />
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-lg" style="width:100%;margin-top:1rem;">Continue to Payment →</button>
+            <p class="form-hint" style="text-align:center;margin-top:0.75rem;">Your details go straight to our team on WhatsApp.</p>
+          </form>
+        </div>
+
+        <div class="payment-card" id="paymentStep" style="margin-top:1.5rem;">
+          <span class="eyebrow" style="color:#7DD3FC;">Payment · Step 2</span>
+          <h2 id="paymentGreeting">Thank you. Please complete payment.</h2>
+          <p class="payment-lead">Transfer <strong>₦20,000</strong> to the account below, then send your receipt to us on WhatsApp to confirm your slot.</p>
+
+          <div class="payment-details">
+            <div class="payment-row">
+              <span class="label">Bank</span>
+              <span class="value">WEMA BANK</span>
+            </div>
+            <div class="payment-row">
+              <span class="label">Account Name</span>
+              <span class="value">DATAKLICKS HUB</span>
+            </div>
+            <div class="payment-row">
+              <span class="label">Account Number</span>
+              <span class="value" id="accountNumberRow">
+                <span id="accountNumber">0125900780</span>
+                <button type="button" class="copy-btn" data-copy="0125900780">Copy</button>
+              </span>
+            </div>
+            <div class="payment-row">
+              <span class="label">Amount</span>
+              <span class="value amount">₦20,000</span>
+            </div>
+          </div>
+
+          <div class="payment-steps">
+            <h4>What happens next</h4>
+            <ol>
+              <li>Transfer <strong>₦20,000</strong> to the account above.</li>
+              <li>Screenshot your receipt.</li>
+              <li>Send the receipt to us on WhatsApp — tap the button below.</li>
+              <li>We'll confirm and send you the Google Meet link.</li>
+            </ol>
+          </div>
+
+          <a id="waReceiptLink" href="https://wa.me/2348065371750?text=Hello%20DataKlicks%20Hub%2C%20I%20have%20made%20payment%20for%20the%20Create%20Smarter%20with%20AI%20class.%20Attaching%20my%20receipt." target="_blank" rel="noopener" class="payment-cta">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.626.712.226 1.36.194 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+            Send Receipt on WhatsApp
+          </a>
+          <p style="text-align:center;margin-top:0.875rem;font-size:0.8125rem;color:rgba(255,255,255,0.7);">Number: +234 806 537 1750</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <h4>DataKlicks Hub</h4>
+        <p>Raising the Top 1% Tech Giants in Africa. Building skills, creating opportunities and driving digital impact.</p>
+        <div class="social-links">
+          <a href="https://ng.linkedin.com/company/dataklicks-hub" target="_blank" rel="noopener" class="social-icon" aria-label="LinkedIn"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.063 2.063 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+          <a href="https://www.instagram.com/dataklicks_hub" target="_blank" rel="noopener" class="social-icon" aria-label="Instagram"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+          <a href="https://www.facebook.com/dataklickshub/" target="_blank" rel="noopener" class="social-icon" aria-label="Facebook"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
+          <a href="https://wa.me/2348065371750" target="_blank" rel="noopener" class="social-icon" aria-label="WhatsApp"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.626.712.226 1.36.194 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg></a>
+        </div>
+      </div>
+      <div class="footer-col"><h5>Quick Links</h5><ul><li><a href="index.html">Home</a></li><li><a href="courses.html">Courses</a></li><li><a href="about.html">About Us</a></li><li><a href="blog.html">Blog</a></li><li><a href="contact.html">Contact</a></li></ul></div>
+      <div class="footer-col"><h5>Learning</h5><ul><li><a href="courses.html">Data Analytics</a></li><li><a href="courses.html">Business Analytics</a></li><li><a href="courses.html">AI & Automation</a></li><li><a href="courses.html">Corporate Training</a></li></ul></div>
+      <div class="footer-col"><h5>Company</h5><ul><li><a href="about.html">About Us</a></li><li><a href="about.html#impact">Impact Projects</a></li><li><a href="contact.html">Business Solutions</a></li><li><a href="contact.html">Partnerships</a></li></ul></div>
+      <div class="footer-col"><h5>Get In Touch</h5><ul><li><a href="mailto:dataklickshub@gmail.com">dataklickshub@gmail.com</a></li><li><a href="https://wa.me/2348065371750" target="_blank" rel="noopener">WhatsApp: +234 806 537 1750</a></li><li>Lagos, Nigeria</li><li><a href="https://www.dataklickshub.com">www.dataklickshub.com</a></li></ul></div>
+    </div>
+    <div class="footer-bottom">
+      <div>© <span data-year>2026</span> DataKlicks Hub. All rights reserved.</div>
+      <div class="footer-bottom-links"><a href="#">Privacy Policy</a><a href="#">Terms of Use</a><a href="#">Cookie Policy</a></div>
+    </div>
+  </div>
+</footer>
+
+<a href="https://wa.me/2348065371750?text=Hello%20DataKlicks%20Hub%2C%20I%27d%20like%20to%20register%20for%20the%20Create%20Smarter%20with%20AI%20class." target="_blank" rel="noopener" class="whatsapp-float" aria-label="Chat with us on WhatsApp">
+  <span class="whatsapp-tooltip">Chat with us on WhatsApp</span>
+  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.626.712.226 1.36.194 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+</a>
+
+<script src="js/main.js"></script>
+<script>
+  // Copy-to-clipboard for account details
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const text = btn.dataset.copy;
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); } catch {}
+        document.body.removeChild(ta);
+      }
+      const old = btn.textContent;
+      btn.textContent = 'Copied ✓';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = old;
+        btn.classList.remove('copied');
+      }, 1800);
+    });
+  });
+
+  // Training registration flow
+  const trainingForm = document.getElementById('trainingForm');
+  const paymentStep = document.getElementById('paymentStep');
+  const paymentGreeting = document.getElementById('paymentGreeting');
+  const waReceiptLink = document.getElementById('waReceiptLink');
+
+  if (trainingForm) {
+    trainingForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!trainingForm.checkValidity()) {
+        trainingForm.reportValidity();
+        return;
+      }
+      const data = new FormData(trainingForm);
+      const name = (data.get('name') || '').toString().trim();
+      const email = (data.get('email') || '').toString().trim();
+      const country = (data.get('country') || '').toString().trim();
+      const phone = (data.get('phone') || '').toString().trim();
+      const firstName = name.split(' ')[0] || 'there';
+
+      // Notify DataKlicks Hub team via WhatsApp with registration details
+      const teamMsg =
+        `New registration — *Create Smarter with AI* class%0A%0A` +
+        `*Name:* ${encodeURIComponent(name)}%0A` +
+        `*Email:* ${encodeURIComponent(email)}%0A` +
+        `*Country:* ${encodeURIComponent(country)}%0A` +
+        `*Phone:* ${encodeURIComponent(phone)}%0A%0A` +
+        `Awaiting payment of ₦20,000 to Wema Bank · DataKlicks Hub · 0125900780.`;
+      const teamUrl = `https://wa.me/2348065371750?text=${teamMsg}`;
+
+      // Pre-fill the "send receipt" WhatsApp link with the registrant's identifying info
+      const receiptMsg =
+        `Hello DataKlicks Hub, I have made payment for the *Create Smarter with AI* class.%0A%0A` +
+        `*Name:* ${encodeURIComponent(name)}%0A` +
+        `*Email:* ${encodeURIComponent(email)}%0A` +
+        `*Phone:* ${encodeURIComponent(phone)}%0A%0A` +
+        `Attaching my payment receipt.`;
+      waReceiptLink.href = `https://wa.me/2348065371750?text=${receiptMsg}`;
+
+      // Personalize greeting
+      paymentGreeting.textContent = `Thank you, ${firstName}. Please complete payment.`;
+
+      // Reveal payment card & scroll to it
+      paymentStep.classList.add('visible');
+      document.querySelector('.register-card').style.opacity = '0.55';
+      document.querySelector('.register-card').style.pointerEvents = 'none';
+      trainingForm.querySelector('button[type="submit"]').textContent = '✓ Registered';
+      trainingForm.querySelector('button[type="submit"]').disabled = true;
+
+      // Fire off the team notification WhatsApp
+      window.open(teamUrl, '_blank', 'noopener');
+
+      setTimeout(() => {
+        paymentStep.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    });
+  }
+</script>
+</body>
+</html>
