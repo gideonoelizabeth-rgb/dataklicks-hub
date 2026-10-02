@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>THAT TECH BADDIE · Elizabeth Gideon — Data &amp; AI Coach</title>
+<meta name="description" content="THAT TECH BADDIE — Elizabeth Gideon's personal portfolio. Data &amp; AI coach helping people and businesses build with data, AI and digital tools." />
+<meta property="og:title" content="THAT TECH BADDIE · Elizabeth Gideon" />
+<meta property="og:description" content="Data &amp; AI Coach. Move the cursor to say hi." />
+<meta property="og:type" content="website" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@500;600;700;800;900&family=Playfair+Display:ital,wght@1,600;1,700&display=swap" rel="stylesheet">
+<style>
+  /* ===========================================================
+     THAT TECH BADDIE — Elizabeth Gideon Portfolio
+     Standalone page. Royal blue + white. No DataKlicks branding.
+     =========================================================== */
+
+  :root {
+    --royal: #2346D3;
+    --royal-dark: #1a37b0;
+    --royal-light: #4d6ce0;
+    --royal-tint: #EEF2FF;
+    --ink: #0B1220;
+    --ink-2: #334155;
+    --ink-3: #64748B;
+    --line: #E2E8F0;
+    --bg-tint: #F4F7FF;
+    --white: #FFFFFF;
+    --shadow-sm: 0 1px 2px rgba(11,18,32,0.05);
+    --shadow-md: 0 4px 14px rgba(11,18,32,0.08);
+    --shadow-lg: 0 16px 36px rgba(11,18,32,0.12);
+    --radius: 14px;
+    --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: var(--ink);
+    background: var(--white);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  a { color: var(--royal); text-decoration: none; transition: color .2s var(--ease); }
+  a:hover { color: var(--royal-dark); }
+  img { max-width: 100%; height: auto; display: block; }
+  button { font: inherit; cursor: pointer; }
+
+  /* ===================================================
+     Header — THAT TECH BADDIE minimal wordmark
+     =================================================== */
+  .tb-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(35,70,211,0.08);
+  }
+  .tb-header-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+  }
+  .tb-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 900;
+    font-size: 0.95rem;
+    letter-spacing: 0.12em;
+    color: var(--ink);
+    text-transform: uppercase;
+  }
+  .tb-brand-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: var(--royal);
+    color: #fff;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-weight: 700;
+    font-size: 1.15rem;
+    letter-spacing: 0;
+    box-shadow: 0 4px 14px rgba(35,70,211,0.35);
+  }
+  .tb-brand span.tb-brand-italic {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-weight: 700;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--royal);
+    font-size: 1.15rem;
+    margin-right: 2px;
+  }
+  .tb-nav {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    list-style: none;
+  }
+  .tb-nav a {
+    color: var(--ink-2);
+    font-weight: 500;
+    font-size: 0.9rem;
+    letter-spacing: 0.02em;
+    transition: color .2s var(--ease);
+  }
+  .tb-nav a:hover { color: var(--royal); }
+  .tb-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.6rem 1.1rem;
+    background: var(--royal);
+    color: #fff;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    box-shadow: 0 4px 14px rgba(35,70,211,0.35);
+    transition: all .25s var(--ease);
+  }
+  .tb-cta:hover {
+    background: var(--royal-dark);
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(35,70,211,0.45);
+  }
+
+  .tb-menu-btn {
+    display: none;
+    background: transparent;
+    border: 1px solid var(--line);
+    padding: 0.5rem;
+    border-radius: 10px;
+    color: var(--ink);
+  }
+
+  /* ===================================================
+     HERO — interactive stage
+     =================================================== */
+  .tb-hero {
+    position: relative;
+    min-height: calc(100vh - 68px);
+    overflow: hidden;
+    background: #ffffff;
+    isolation: isolate;
+  }
+
+  /* Ambient background: bright white center glow + soft royal-blue corner tints */
+  .tb-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(60% 55% at 50% 55%, rgba(255,255,255,1) 0%, rgba(255,255,255,0.9) 40%, rgba(244,247,255,0) 75%),
+      radial-gradient(90% 80% at 50% 50%, rgba(255,255,255,0.9) 0%, rgba(244,247,255,0.9) 55%, rgba(224,232,255,0.7) 100%);
+    z-index: 0;
+    pointer-events: none;
+  }
+  .tb-hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 0% 0%, rgba(35,70,211,0.12) 0%, transparent 40%),
+      radial-gradient(circle at 100% 0%, rgba(35,70,211,0.12) 0%, transparent 40%),
+      radial-gradient(circle at 0% 100%, rgba(35,70,211,0.10) 0%, transparent 45%),
+      radial-gradient(circle at 100% 100%, rgba(35,70,211,0.10) 0%, transparent 45%);
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .tb-hero-inner {
+    position: relative;
+    z-index: 2;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 3rem;
+    display: grid;
+    grid-template-columns: minmax(200px, 1fr) minmax(0, 2.2fr) minmax(200px, 1fr);
+    gap: 1.5rem;
+    align-items: center;
+    min-height: calc(100vh - 68px);
+  }
+
+  /* ---------- Left column ---------- */
+  .tb-intro { position: relative; z-index: 3; }
+  .tb-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.8rem;
+    background: rgba(35,70,211,0.08);
+    color: var(--royal);
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+  }
+  .tb-tag::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--royal);
+    box-shadow: 0 0 0 3px rgba(35,70,211,0.2);
+    animation: tb-pulse 2s ease-in-out infinite;
+  }
+  .tb-name {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 800;
+    font-size: clamp(1.85rem, 3vw, 2.75rem);
+    line-height: 1.05;
+    color: var(--ink);
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.02em;
+  }
+  .tb-name .tb-first { display: block; }
+  .tb-name .tb-last {
+    display: block;
+    color: var(--royal);
+  }
+  .tb-role {
+    font-size: 1.02rem;
+    color: var(--ink-2);
+    font-weight: 500;
+    margin-bottom: 2rem;
+    letter-spacing: 0.01em;
+  }
+  .tb-cursor-cue {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.7rem 1rem;
+    background: rgba(255,255,255,0.9);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(35,70,211,0.15);
+    border-radius: 12px;
+    font-size: 0.875rem;
+    color: var(--ink-2);
+    font-weight: 500;
+    box-shadow: var(--shadow-sm);
+  }
+  .tb-cursor-icon {
+    width: 18px;
+    height: 18px;
+    color: var(--royal);
+    animation: tb-cursor-wiggle 2.5s ease-in-out infinite;
+  }
+
+  /* ---------- Center stage ---------- */
+  .tb-stage {
+    position: relative;
+    height: min(80vh, 720px);
+    min-height: 460px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 2;
+    cursor: crosshair;
+  }
+  .tb-stage::before {
+    content: "";
+    position: absolute;
+    inset: 5% 5% 0 5%;
+    background: radial-gradient(ellipse at 50% 55%, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.5) 40%, rgba(255,255,255,0) 70%);
+    z-index: 0;
+    pointer-events: none;
+    filter: blur(4px);
+  }
+
+  .tb-zone {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 33.334%;
+    z-index: 5;
+  }
+  .tb-zone-left { left: 0; }
+  .tb-zone-center { left: 33.334%; }
+  .tb-zone-right { right: 0; }
+
+  .tb-character-wrap {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    pointer-events: none;
+  }
+  .tb-character {
+    max-height: 88%;
+    max-width: 100%;
+    object-fit: contain;
+    -webkit-mask-image: radial-gradient(ellipse 78% 92% at 50% 55%, #000 45%, rgba(0,0,0,0.85) 60%, rgba(0,0,0,0.35) 82%, transparent 96%);
+    mask-image: radial-gradient(ellipse 78% 92% at 50% 55%, #000 45%, rgba(0,0,0,0.85) 60%, rgba(0,0,0,0.35) 82%, transparent 96%);
+    filter: drop-shadow(0 30px 40px rgba(11,18,32,0.12)) drop-shadow(0 6px 14px rgba(35,70,211,0.10));
+    transform-origin: center bottom;
+    transition: transform .65s cubic-bezier(0.34, 1.56, 0.64, 1), filter .6s ease;
+    will-change: transform;
+    animation: tb-breathe 5s ease-in-out infinite;
+  }
+
+  .tb-stage[data-zone="left"] .tb-character {
+    transform: translateX(-3%) rotate(-4deg) scale(1.02);
+    animation: none;
+  }
+  .tb-stage[data-zone="right"] .tb-character {
+    transform: translateX(3%) rotate(4deg) scale(1.02);
+    animation: none;
+  }
+  .tb-stage[data-zone="center"] .tb-character {
+    transform: translateY(-1.5%) scale(1.05);
+    animation: tb-excited 1.4s ease-in-out infinite;
+    filter: drop-shadow(0 30px 50px rgba(35,70,211,0.25)) drop-shadow(0 6px 14px rgba(35,70,211,0.15));
+  }
+
+  /* Spotlight following cursor */
+  .tb-spotlight {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 340px;
+    height: 340px;
+    pointer-events: none;
+    z-index: 3;
+    background: radial-gradient(circle, rgba(35,70,211,0.12) 0%, rgba(35,70,211,0) 65%);
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: opacity .35s ease;
+    mix-blend-mode: multiply;
+  }
+  .tb-stage[data-zone]:not([data-zone="none"]) .tb-spotlight { opacity: 1; }
+
+  /* ---------- Bubbles ---------- */
+  .tb-bubble {
+    position: absolute;
+    z-index: 6;
+    padding: 0.85rem 1.15rem;
+    background: #ffffff;
+    color: var(--ink);
+    border: 1px solid rgba(35,70,211,0.18);
+    border-radius: 16px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    box-shadow: 0 8px 22px rgba(11,18,32,0.10), 0 2px 6px rgba(35,70,211,0.08);
+    opacity: 0;
+    transform: translateY(8px) scale(0.94);
+    transition: opacity .35s ease, transform .45s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .tb-bubble::after {
+    content: "";
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    background: inherit;
+    border-right: 1px solid rgba(35,70,211,0.18);
+    border-bottom: 1px solid rgba(35,70,211,0.18);
+    bottom: -8px;
+    transform: rotate(45deg);
+  }
+
+  .tb-bubble-left { top: 15%; left: 4%; }
+  .tb-bubble-left::after { left: 24px; }
+
+  .tb-bubble-right { top: 15%; right: 4%; }
+  .tb-bubble-right::after { right: 24px; }
+
+  .tb-bubble-center {
+    top: 1%;
+    left: 50%;
+    transform: translate(-50%, 8px) scale(0.94);
+    text-align: center;
+    padding: 0.9rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+  .tb-bubble-center::after { left: 50%; margin-left: -7px; }
+  .tb-bubble-center .tb-hi {
+    font-size: 1.35rem;
+    color: var(--royal);
+    font-weight: 800;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+  }
+  .tb-bubble-center .tb-line {
+    font-size: 0.875rem;
+    color: var(--ink-2);
+    font-weight: 500;
+  }
+
+  .tb-stage[data-zone="left"] .tb-bubble-left,
+  .tb-stage[data-zone="right"] .tb-bubble-right {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  .tb-stage[data-zone="center"] .tb-bubble-center {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+
+  /* ---------- Right column ---------- */
+  .tb-facts {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    align-items: flex-end;
+    text-align: right;
+  }
+  .tb-fact {
+    background: rgba(255,255,255,0.9);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(35,70,211,0.12);
+    border-radius: 14px;
+    padding: 0.85rem 1.1rem;
+    box-shadow: 0 4px 14px rgba(11,18,32,0.06);
+    min-width: 200px;
+  }
+  .tb-fact-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    font-weight: 600;
+    margin-bottom: 0.15rem;
+  }
+  .tb-fact-value {
+    font-family: 'Manrope', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  /* ---------- Scroll cue ---------- */
+  .tb-scroll {
+    position: absolute;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 4;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.1rem;
+    background: rgba(255,255,255,0.9);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 1px solid rgba(35,70,211,0.15);
+    border-radius: 999px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--royal);
+    box-shadow: var(--shadow-sm);
+    transition: all .25s var(--ease);
+  }
+  .tb-scroll:hover {
+    background: var(--royal);
+    color: #fff;
+    transform: translateX(-50%) translateY(-2px);
+  }
+  .tb-scroll .tb-arrow { animation: tb-bob 1.8s ease-in-out infinite; }
+
+  /* ===================================================
+     Portfolio body — About, Services, Contact
+     =================================================== */
+  .tb-section { padding: 5rem 0; }
+  .tb-container { max-width: 1120px; margin: 0 auto; padding: 0 2rem; }
+
+  .tb-eyebrow {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--royal);
+    margin-bottom: 1rem;
+  }
+  .tb-h2 {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 800;
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
+    line-height: 1.15;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+    margin-bottom: 1rem;
+    max-width: 720px;
+  }
+  .tb-h2 em {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    color: var(--royal);
+    font-weight: 700;
+  }
+  .tb-lead {
+    font-size: 1.0625rem;
+    color: var(--ink-2);
+    max-width: 640px;
+  }
+
+  .tb-about {
+    background: linear-gradient(180deg, #fff 0%, var(--bg-tint) 100%);
+  }
+  .tb-about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: center;
+  }
+  .tb-about p + p { margin-top: 1rem; }
+  .tb-about p { color: var(--ink-2); }
+  .tb-signature {
+    margin-top: 2rem;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    color: var(--royal);
+    font-size: 1.5rem;
+  }
+  .tb-about-visual {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    border-radius: 24px;
+    overflow: hidden;
+    background: var(--royal-tint);
+    box-shadow: var(--shadow-lg);
+  }
+  .tb-about-visual img { width: 100%; height: 100%; object-fit: cover; }
+
+  .tb-services { background: var(--white); }
+  .tb-services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.25rem;
+    margin-top: 2.5rem;
+  }
+  .tb-card {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 1.75rem;
+    transition: transform .25s var(--ease), box-shadow .25s var(--ease), border-color .25s var(--ease);
+  }
+  .tb-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+    border-color: rgba(35,70,211,0.25);
+  }
+  .tb-card-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: rgba(35,70,211,0.10);
+    color: var(--royal);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+  .tb-card-title {
+    font-family: 'Manrope', sans-serif;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 0.5rem;
+  }
+  .tb-card-desc { font-size: 0.9375rem; color: var(--ink-2); line-height: 1.55; }
+
+  .tb-cta-band {
+    background: linear-gradient(135deg, var(--royal) 0%, var(--royal-dark) 100%);
+    color: #fff;
+    padding: 4rem 0;
+    text-align: center;
+  }
+  .tb-cta-band h2 {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 800;
+    font-size: clamp(1.5rem, 2.5vw, 2rem);
+    color: #fff;
+    margin-bottom: 1rem;
+    letter-spacing: -0.01em;
+  }
+  .tb-cta-band h2 em {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-weight: 700;
+  }
+  .tb-cta-band p { color: rgba(255,255,255,0.9); margin-bottom: 2rem; max-width: 560px; margin-left: auto; margin-right: auto; }
+  .tb-cta-band-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+  .tb-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.85rem 1.5rem;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.9375rem;
+    transition: all .25s var(--ease);
+    border: 2px solid transparent;
+  }
+  .tb-btn-primary {
+    background: #fff;
+    color: var(--royal);
+  }
+  .tb-btn-primary:hover {
+    background: var(--ink);
+    color: #fff;
+    transform: translateY(-1px);
+  }
+  .tb-btn-ghost {
+    background: transparent;
+    color: #fff;
+    border-color: rgba(255,255,255,0.4);
+  }
+  .tb-btn-ghost:hover {
+    background: rgba(255,255,255,0.1);
+    border-color: #fff;
+    color: #fff;
+  }
+
+  /* ===================================================
+     Footer
+     =================================================== */
+  .tb-footer {
+    background: var(--ink);
+    color: rgba(255,255,255,0.75);
+    padding: 3rem 0 2rem;
+    font-size: 0.875rem;
+  }
+  .tb-footer-inner {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+  .tb-footer-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 900;
+    font-size: 0.85rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #fff;
+  }
+  .tb-footer-brand .tb-brand-mark { width: 30px; height: 30px; font-size: 1rem; }
+  .tb-socials { display: flex; gap: 0.75rem; }
+  .tb-social {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255,255,255,0.9);
+    transition: all .25s var(--ease);
+  }
+  .tb-social:hover { background: var(--royal); color: #fff; transform: translateY(-2px); }
+  .tb-footer-bottom {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    text-align: center;
+    font-size: 0.8125rem;
+  }
+
+  /* ===================================================
+     Animations
+     =================================================== */
+  @keyframes tb-breathe {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.008); }
+  }
+  @keyframes tb-excited {
+    0%, 100% { transform: translateY(-1.5%) scale(1.05); }
+    50% { transform: translateY(-3%) scale(1.06); }
+  }
+  @keyframes tb-pulse {
+    0%, 100% { box-shadow: 0 0 0 3px rgba(35,70,211,0.2); }
+    50% { box-shadow: 0 0 0 6px rgba(35,70,211,0.05); }
+  }
+  @keyframes tb-cursor-wiggle {
+    0%, 100% { transform: translate(0, 0); }
+    25% { transform: translate(4px, -2px); }
+    50% { transform: translate(0, 3px); }
+    75% { transform: translate(-4px, -2px); }
+  }
+  @keyframes tb-bob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(3px); }
+  }
+
+  /* ===================================================
+     Responsive
+     =================================================== */
+  @media (max-width: 960px) {
+    .tb-hero-inner {
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+      padding: 2rem 1.25rem 5rem;
+    }
+    .tb-intro { text-align: center; }
+    .tb-cursor-cue { justify-content: center; }
+    .tb-facts {
+      order: 3;
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+    .tb-fact { min-width: 140px; }
+    .tb-stage { height: min(58vh, 560px); min-height: 380px; }
+    .tb-about-grid { grid-template-columns: 1fr; gap: 2rem; }
+    .tb-about-visual { max-width: 420px; margin: 0 auto; }
+  }
+  @media (max-width: 700px) {
+    .tb-header-inner { padding: 0.85rem 1.25rem; }
+    .tb-nav, .tb-cta { display: none; }
+    .tb-menu-btn { display: inline-flex; align-items: center; justify-content: center; }
+    .tb-hero { min-height: auto; padding-bottom: 2.5rem; }
+    .tb-hero-inner { min-height: auto; padding: 1.25rem 1rem 4rem; }
+    /* Mobile: single centered experience, no cursor interactions */
+    .tb-zone-left, .tb-zone-right, .tb-zone-center { display: none; }
+    .tb-stage { height: min(60vh, 480px); min-height: 340px; cursor: default; }
+    .tb-bubble { display: none; }
+    /* Mobile greeting shown as inline card above the character */
+    .tb-mobile-greeting {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.15rem;
+      padding: 0.9rem 1.25rem;
+      background: #fff;
+      border: 1px solid rgba(35,70,211,0.15);
+      border-radius: 16px;
+      text-align: center;
+      margin: 0 auto 0.5rem;
+      max-width: 320px;
+      box-shadow: 0 6px 18px rgba(11,18,32,0.08);
+    }
+    .tb-mobile-greeting .tb-hi {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-weight: 700;
+      color: var(--royal);
+      font-size: 1.25rem;
+    }
+    .tb-mobile-greeting .tb-line { font-size: 0.85rem; color: var(--ink-2); font-weight: 500; }
+    .tb-cursor-cue { display: none; }
+    .tb-facts { display: none; }
+    .tb-scroll { bottom: 0.75rem; font-size: 0.75rem; padding: 0.5rem 0.9rem; }
+    .tb-name { font-size: 1.85rem; }
+    .tb-role { margin-bottom: 1rem; }
+    .tb-section { padding: 3.5rem 0; }
+    .tb-footer-inner { flex-direction: column; text-align: center; }
+  }
+  @media (min-width: 701px) {
+    .tb-mobile-greeting { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tb-character, .tb-bubble, .tb-cursor-icon, .tb-scroll .tb-arrow, .tb-tag::before {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+
+  /* ===================================================
+     Mobile nav sheet
+     =================================================== */
+  .tb-mobile-nav {
+    display: none;
+    position: fixed;
+    top: 68px;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border-bottom: 1px solid var(--line);
+    padding: 1rem 1.25rem 1.5rem;
+    z-index: 49;
+    box-shadow: 0 10px 24px rgba(11,18,32,0.08);
+  }
+  .tb-mobile-nav.is-open { display: block; }
+  .tb-mobile-nav ul { list-style: none; }
+  .tb-mobile-nav li { border-bottom: 1px solid var(--line); }
+  .tb-mobile-nav li:last-child { border-bottom: none; }
+  .tb-mobile-nav a {
+    display: block;
+    padding: 0.85rem 0;
+    color: var(--ink);
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+</style>
+</head>
+<body>
+
+<!-- ===================================================
+     HEADER
+     =================================================== -->
+<header class="tb-header">
+  <div class="tb-header-inner">
+    <a href="#" class="tb-brand" aria-label="That Tech Baddie home">
+      <span class="tb-brand-mark">T</span>
+      <span>THAT <span class="tb-brand-italic">Tech</span> BADDIE</span>
+    </a>
+    <nav aria-label="Primary">
+      <ul class="tb-nav">
+        <li><a href="#about">About</a></li>
+        <li><a href="#services">What I Do</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+    <a href="#contact" class="tb-cta">Let's Talk →</a>
+    <button class="tb-menu-btn" aria-label="Toggle menu" aria-expanded="false" data-menu-toggle>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="tb-mobile-nav" data-mobile-nav>
+    <ul>
+      <li><a href="#about">About</a></li>
+      <li><a href="#services">What I Do</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </div>
+</header>
+
+<!-- ===================================================
+     INTERACTIVE HERO
+     =================================================== -->
+<section class="tb-hero" aria-label="Elizabeth Gideon portfolio hero">
+  <div class="tb-hero-inner">
+
+    <aside class="tb-intro">
+      <span class="tb-tag">Portfolio · 2026</span>
+      <h1 class="tb-name">
+        <span class="tb-first">I'm Elizabeth</span>
+        <span class="tb-last">Gideon</span>
+      </h1>
+      <p class="tb-role">Data &amp; AI Coach</p>
+      <div class="tb-cursor-cue" aria-hidden="true">
+        <svg class="tb-cursor-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 4 L4 20 L9 15 L12 22 L15 20 L11 13 L18 13 Z" fill="currentColor" fill-opacity="0.18"/>
+        </svg>
+        <span>Move cursor to call me!</span>
+      </div>
+      <div class="tb-mobile-greeting" aria-hidden="true">
+        <span class="tb-hi">Hiiii!</span>
+        <span class="tb-line">Scroll down and let's talk data &amp; AI ↓</span>
+      </div>
+    </aside>
+
+    <div class="tb-stage" data-zone="none" aria-label="Interactive character. Move your cursor left, right, or center to interact.">
+      <div class="tb-zone tb-zone-left" data-hit-zone="left" aria-hidden="true"></div>
+      <div class="tb-zone tb-zone-center" data-hit-zone="center" aria-hidden="true"></div>
+      <div class="tb-zone tb-zone-right" data-hit-zone="right" aria-hidden="true"></div>
+
+      <div class="tb-spotlight" aria-hidden="true"></div>
+
+      <div class="tb-character-wrap">
+        <img src="images/elizabeth-portfolio.jpg" alt="Elizabeth Gideon holding a laptop" class="tb-character" />
+      </div>
+
+      <div class="tb-bubble tb-bubble-left" aria-hidden="true">
+        <span>Anyone here on the left?</span>
+      </div>
+      <div class="tb-bubble tb-bubble-right" aria-hidden="true">
+        <span>Anyone here on the right?</span>
+      </div>
+      <div class="tb-bubble tb-bubble-center" aria-hidden="true">
+        <span class="tb-hi">Hiiii!</span>
+        <span class="tb-line">Hey, it's you.</span>
+        <span class="tb-line">Check out the portfolio ↓</span>
+      </div>
+    </div>
+
+    <aside class="tb-facts" aria-hidden="true">
+      <div class="tb-fact">
+        <div class="tb-fact-label">Coached</div>
+        <div class="tb-fact-value">5,000+ learners</div>
+      </div>
+      <div class="tb-fact">
+        <div class="tb-fact-label">Featured in</div>
+        <div class="tb-fact-value">Tribune Online</div>
+      </div>
+      <div class="tb-fact">
+        <div class="tb-fact-label">Based in</div>
+        <div class="tb-fact-value">Lagos, Nigeria</div>
+      </div>
+    </aside>
+  </div>
+
+  <a href="#about" class="tb-scroll" aria-label="Scroll to explore portfolio">
+    <span>Scroll to explore</span>
+    <span class="tb-arrow" aria-hidden="true">↓</span>
+  </a>
+</section>
+
+<!-- ===================================================
+     ABOUT
+     =================================================== -->
+<section id="about" class="tb-section tb-about">
+  <div class="tb-container">
+    <div class="tb-about-grid">
+      <div>
+        <span class="tb-eyebrow">About Me</span>
+        <h2 class="tb-h2">Data, AI &amp; a little <em>tech baddie</em> energy.</h2>
+        <p>Hi, I'm Elizabeth Gideon — a Data &amp; AI Coach, educator, and technology entrepreneur. I help individuals build future-ready careers in data and AI, and support businesses in using data and digital tools to grow.</p>
+        <p>My work spans coaching, corporate training, community speaking, and building initiatives that expand access to technology — especially for women and girls across Africa.</p>
+        <p>I believe technology is most powerful when it is understandable, practical, and put in the hands of people ready to build.</p>
+        <div class="tb-signature">— Elizabeth</div>
+      </div>
+      <div class="tb-about-visual">
+        <img src="images/elizabeth-portfolio.jpg" alt="Elizabeth Gideon" />
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================================================
+     SERVICES
+     =================================================== -->
+<section id="services" class="tb-section tb-services">
+  <div class="tb-container">
+    <span class="tb-eyebrow">What I Do</span>
+    <h2 class="tb-h2">Ways we can <em>work together.</em></h2>
+    <p class="tb-lead">Whether you are learning data, adopting AI, or looking for someone to speak at your event — here's how I can help.</p>
+
+    <div class="tb-services-grid">
+      <div class="tb-card">
+        <div class="tb-card-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 22 h16 M4 22 v-8 h4 v8 M10 22 v-14 h4 v14 M16 22 v-10 h4 v10"/></svg>
+        </div>
+        <div class="tb-card-title">Data Analytics Coaching</div>
+        <p class="tb-card-desc">One-on-one and cohort coaching that takes you from spreadsheets to Power BI, SQL, and portfolio-ready projects.</p>
+      </div>
+
+      <div class="tb-card">
+        <div class="tb-card-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2 v3 M12 19 v3 M2 12 h3 M19 12 h3 M4.9 4.9 l2.1 2.1 M17 17 l2.1 2.1 M4.9 19.1 l2.1-2.1 M17 7 l2.1-2.1"/></svg>
+        </div>
+        <div class="tb-card-title">AI &amp; Automation</div>
+        <p class="tb-card-desc">Practical AI adoption for teams — prompt design, agentic workflows, and automations that give hours back every week.</p>
+      </div>
+
+      <div class="tb-card">
+        <div class="tb-card-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21 v-2 a4 4 0 0 0-4-4 H5 a4 4 0 0 0-4 4 v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21 v-2 a4 4 0 0 0-3-3.87"/><path d="M16 3.13 a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div class="tb-card-title">Corporate Training</div>
+        <p class="tb-card-desc">Custom training for organizations that want their operations, marketing, and leadership teams to use data confidently.</p>
+      </div>
+
+      <div class="tb-card">
+        <div class="tb-card-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 11 L3 15 L7 15 L12 20 L12 6 L7 11 Z"/><path d="M16 8 A5 5 0 0 1 16 16"/></svg>
+        </div>
+        <div class="tb-card-title">Speaking &amp; Community</div>
+        <p class="tb-card-desc">Talks, panels, and community sessions on women in tech, digital literacy, and building data culture in African organizations.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================================================
+     CTA
+     =================================================== -->
+<section id="contact" class="tb-cta-band">
+  <div class="tb-container">
+    <h2>Let's build <em>something.</em></h2>
+    <p>Whether it's a coaching cohort, a corporate training programme, or a speaking invitation — I'd love to hear from you.</p>
+    <div class="tb-cta-band-btns">
+      <a href="mailto:akinyemi.o.elizabeth@gmail.com" class="tb-btn tb-btn-primary">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4 h16 c1 0 2 1 2 2 v12 c0 1-1 2-2 2 H4 c-1 0-2-1-2-2 V6 c0-1 1-2 2-2 z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Email Me
+      </a>
+      <a href="https://wa.me/2348065371750?text=Hi%20Elizabeth%2C%20I%27d%20love%20to%20work%20with%20you." target="_blank" rel="noopener" class="tb-btn tb-btn-ghost">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.626.712.226 1.36.194 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+        WhatsApp
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ===================================================
+     FOOTER
+     =================================================== -->
+<footer class="tb-footer">
+  <div class="tb-footer-inner">
+    <div class="tb-footer-brand">
+      <span class="tb-brand-mark">T</span>
+      <span>THAT <span style="font-family:'Playfair Display',serif;font-style:italic;font-weight:700;text-transform:none;letter-spacing:0;color:#fff;">Tech</span> BADDIE</span>
+    </div>
+    <div class="tb-socials">
+      <a href="https://ng.linkedin.com/in/akinyemi-elizabeth" target="_blank" rel="noopener" class="tb-social" aria-label="LinkedIn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.063 2.063 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+      </a>
+      <a href="https://wa.me/2348065371750" target="_blank" rel="noopener" class="tb-social" aria-label="WhatsApp">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.626.712.226 1.36.194 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+      </a>
+      <a href="mailto:akinyemi.o.elizabeth@gmail.com" class="tb-social" aria-label="Email">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4 h16 c1 0 2 1 2 2 v12 c0 1-1 2-2 2 H4 c-1 0-2-1-2-2 V6 c0-1 1-2 2-2 z"/><polyline points="22,6 12,13 2,6"/></svg>
+      </a>
+    </div>
+  </div>
+  <div class="tb-footer-bottom">
+    © <span data-year>2026</span> Elizabeth Gideon · THAT TECH BADDIE
+  </div>
+</footer>
+
+<script>
+  /* ==============================================================
+     Interactive Hero — cursor zone tracking (rAF, no framework)
+     ============================================================== */
+  (function () {
+    const stage = document.querySelector('.tb-stage');
+    if (!stage) return;
+
+    const spotlight = stage.querySelector('.tb-spotlight');
+    const isTouch = window.matchMedia('(hover: none), (pointer: coarse)').matches;
+    const isNarrow = window.matchMedia('(max-width: 700px)').matches;
+
+    let bounds = stage.getBoundingClientRect();
+    let currentZone = 'none';
+    let pending = null;
+    let rafId = null;
+
+    function refreshBounds() { bounds = stage.getBoundingClientRect(); }
+
+    function setZone(zone) {
+      if (zone === currentZone) return;
+      currentZone = zone;
+      stage.dataset.zone = zone;
+    }
+
+    function tick() {
+      rafId = null;
+      if (!pending || !bounds) return;
+      const { x, y } = pending;
+      pending = null;
+      const relX = (x - bounds.left) / bounds.width;
+      if (relX < 0 || relX > 1) setZone('none');
+      else if (relX < 1 / 3) setZone('left');
+      else if (relX > 2 / 3) setZone('right');
+      else setZone('center');
+      if (spotlight) {
+        spotlight.style.transform = 'translate(' + (x - bounds.left) + 'px, ' + (y - bounds.top) + 'px) translate(-50%, -50%)';
+      }
+    }
+
+    function onMove(e) {
+      const p = e.touches ? e.touches[0] : e;
+      pending = { x: p.clientX, y: p.clientY };
+      if (!rafId) rafId = requestAnimationFrame(tick);
+    }
+
+    function onLeave() {
+      pending = null;
+      setZone('none');
+    }
+
+    if (!isTouch && !isNarrow) {
+      stage.addEventListener('mousemove', onMove);
+      stage.addEventListener('mouseleave', onLeave);
+      stage.addEventListener('mouseenter', refreshBounds);
+    }
+    window.addEventListener('resize', refreshBounds);
+    window.addEventListener('scroll', refreshBounds, { passive: true });
+    refreshBounds();
+  })();
+
+  /* Mobile menu toggle */
+  (function () {
+    const btn = document.querySelector('[data-menu-toggle]');
+    const nav = document.querySelector('[data-mobile-nav]');
+    if (!btn || !nav) return;
+    btn.addEventListener('click', () => {
+      const open = nav.classList.toggle('is-open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    nav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+      nav.classList.remove('is-open');
+      btn.setAttribute('aria-expanded', 'false');
+    }));
+  })();
+
+  /* Year */
+  document.querySelectorAll('[data-year]').forEach(el => el.textContent = new Date().getFullYear());
+</script>
+</body>
+</html>
