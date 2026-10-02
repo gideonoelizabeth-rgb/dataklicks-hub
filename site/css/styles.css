@@ -1434,7 +1434,7 @@ img { max-width: 100%; height: auto; display: block; }
   .menu-toggle { display: flex; }
   .header-cta .btn-primary { display: none; }
   .hero-inner { grid-template-columns: 1fr; gap: 2rem; }
-  .hero-visual { max-width: 400px; margin: 0 auto; }
+  .hero-visual { display: none; }
   .split { grid-template-columns: 1fr; gap: 2rem; }
   .founder-card { grid-template-columns: 1fr; text-align: center; padding: 2rem; }
   .founder-avatar { margin: 0 auto; }
