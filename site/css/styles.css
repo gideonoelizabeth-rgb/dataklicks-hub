@@ -306,6 +306,7 @@ img { max-width: 100%; height: auto; display: block; }
 
 .hero-visual {
   position: relative;
+  width: 100%;
   aspect-ratio: 1;
   max-width: 520px;
   margin-left: auto;
