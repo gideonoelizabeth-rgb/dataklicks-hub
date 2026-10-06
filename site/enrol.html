@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Course Enrolment | DataKlicks Hub</title>
+<meta name="description" content="Enrol in a DataKlicks Hub course. Register online, pay by bank transfer and get your confirmation by email." />
+<link rel="icon" type="image/png" href="images/logo.png">
+<link rel="apple-touch-icon" href="images/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css?v=20261006" />
+<style>
+  .enrol-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; align-items: start; }
+  .enrol-summary { background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 2.25rem; box-shadow: var(--shadow-sm); }
+  .enrol-summary .fee { font-family: 'Manrope', sans-serif; font-size: 2.25rem; font-weight: 800; color: var(--royal-blue); letter-spacing: -0.02em; margin: 0.25rem 0 1.25rem; }
+  .enrol-summary .fee small { display: block; font-size: 0.75rem; font-weight: 600; color: var(--gray-600); letter-spacing: 0.08em; text-transform: uppercase; }
+  .enrol-steps { list-style: none; counter-reset: s; margin-top: 1.25rem; }
+  .enrol-steps li { counter-increment: s; display: flex; gap: 0.875rem; padding: 0.875rem 0; border-top: 1px solid var(--gray-200); font-size: 0.9375rem; color: var(--gray-700); }
+  .enrol-steps li::before { content: counter(s); flex-shrink: 0; width: 28px; height: 28px; border-radius: 8px; background: var(--soft-blue-white); color: var(--royal-blue); font-weight: 800; font-family: 'Manrope', sans-serif; font-size: 0.8125rem; display: flex; align-items: center; justify-content: center; }
+  .chooser-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem; }
+  .chooser-grid a.card { text-decoration: none; color: inherit; display: block; }
+  .chooser-grid .price { font-family: 'Manrope', sans-serif; font-weight: 800; color: var(--royal-blue); font-size: 1.25rem; }
+  @media (max-width: 900px) { .enrol-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="logo"><span class="logo-mark"><img src="images/logo.png" alt="DataKlicks Hub logo"/></span><span>DataKlicks Hub</span></a>
+    <nav aria-label="Primary">
+      <ul class="nav-list">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="courses.html">Courses</a></li>
+        <li><a href="about.html">About Us</a></li>
+        <li><a href="blog.html">Blog</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </nav>
+    <div class="header-cta">
+      <a href="courses.html" class="btn btn-primary">Explore Courses</a>
+      <button class="menu-toggle" aria-label="Toggle menu" aria-expanded="false">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<section class="page-hero">
+  <div class="container">
+    <div class="breadcrumbs"><a href="index.html">Home</a> <span>/</span> <a href="courses.html">Courses</a> <span>/</span> <span>Enrol</span></div>
+    <span class="eyebrow">Course enrolment</span>
+    <h1 id="enrolTitle">Enrol in a course.</h1>
+    <p id="enrolMeta">Register online, pay by bank transfer and get your confirmation by email.</p>
+  </div>
+</section>
+
+<section class="section" style="padding-top:2rem;">
+  <div class="container">
+
+    <!-- Shown when no valid ?course= is given -->
+    <div id="chooser" hidden>
+      <div class="chooser-grid" id="chooserGrid"></div>
+    </div>
+
+    <div class="enrol-grid" id="enrolWrap" hidden>
+      <div class="enrol-summary">
+        <span class="eyebrow">Course summary</span>
+        <h2 id="sumTitle" style="font-size:1.5rem;"></h2>
+        <p id="sumMeta" style="color:var(--gray-600);"></p>
+        <div class="fee"><small>Tuition</small><span id="sumFee"></span></div>
+        <b>How enrolment works</b>
+        <ol class="enrol-steps">
+          <li>Fill in the registration form and accept the privacy notice.</li>
+          <li>We email you a confirmation with the payment details.</li>
+          <li>Pay by bank transfer and send your receipt to us on WhatsApp.</li>
+          <li>We confirm your payment by email and share your joining details.</li>
+        </ol>
+      </div>
+
+      <div>
+        <div class="register-card" id="register">
+          <span class="eyebrow">Registration</span>
+          <h2>Secure your place.</h2>
+          <p>Fill this form and we'll show you the payment details on the next step.</p>
+          <form id="enrolForm" novalidate>
+            <div class="form-group">
+              <label for="ef-name">Full Name</label>
+              <input type="text" id="ef-name" name="name" required autocomplete="name" />
+            </div>
+            <div class="form-group">
+              <label for="ef-email">Email Address</label>
+              <input type="email" id="ef-email" name="email" required autocomplete="email" />
+            </div>
+            <div class="form-row">
+              <div class="form-group" style="margin-bottom:0;">
+                <label for="ef-country">Country</label>
+                <input type="text" id="ef-country" name="country" required placeholder="Nigeria" autocomplete="country-name" />
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label for="ef-phone">Phone Number</label>
+                <input type="tel" id="ef-phone" name="phone" required placeholder="+234 806 537 1750" autocomplete="tel" />
+              </div>
+            </div>
+            <div class="hp-field" aria-hidden="true">
+              <label for="ef-website">Leave this field empty</label>
+              <input type="text" id="ef-website" name="website" tabindex="-1" autocomplete="off" />
+            </div>
+            <div class="consent-row" style="margin-top:1rem;">
+              <input type="checkbox" id="ef-consent" name="consent" required />
+              <label for="ef-consent">I agree to DataKlicks Hub saving my details to process this registration and email me about it. <a href="privacy.html" target="_blank" rel="noopener">Privacy notice</a></label>
+            </div>
+            <div class="form-error" id="efError" role="alert"></div>
+            <button type="submit" class="btn btn-primary btn-lg" style="width:100%;">Continue to Payment →</button>
+            <p class="form-hint" style="text-align:center;margin-top:0.75rem;">We'll email you a confirmation with the payment details.</p>
+          </form>
+        </div>
+
+        <div class="payment-card" id="paymentStep" style="margin-top:1.5rem;">
+          <span class="eyebrow" style="color:#7DD3FC;">Payment · Step 2</span>
+          <h2 id="paymentGreeting">Thank you. Please complete payment.</h2>
+          <p class="payment-lead">Transfer <strong id="payLeadAmount"></strong> to the account below, then send your receipt to us on WhatsApp to confirm your place.</p>
+          <div class="pay-notice" id="payNotice" hidden></div>
+
+          <div class="payment-details">
+            <div class="payment-row"><span class="label">Bank</span><span class="value" id="payBank"></span></div>
+            <div class="payment-row"><span class="label">Account Name</span><span class="value" id="payName"></span></div>
+            <div class="payment-row">
+              <span class="label">Account Number</span>
+              <span class="value"><span id="payNumber"></span> <button type="button" class="copy-btn" id="copyNumber">Copy</button></span>
+            </div>
+            <div class="payment-row"><span class="label">Amount</span><span class="value amount" id="payAmount"></span></div>
+          </div>
+
+          <div class="payment-steps">
+            <h4>What happens next</h4>
+            <ol>
+              <li>Transfer the amount above to the account shown.</li>
+              <li>Screenshot your receipt.</li>
+              <li>Send the receipt to us on WhatsApp using the button below.</li>
+              <li>We'll confirm your payment by email.</li>
+            </ol>
+          </div>
+
+          <a id="waReceiptLink" href="#" target="_blank" rel="noopener" class="payment-cta">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.626.712.226 1.36.194 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+            Send Receipt on WhatsApp
+          </a>
+          <p style="text-align:center;margin-top:0.875rem;font-size:0.8125rem;color:rgba(255,255,255,0.7);" id="payWaNumber"></p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <h4>DataKlicks Hub</h4>
+        <p>Raising the Top 1% Tech Giants in Africa. Building skills, creating opportunities and driving digital impact.</p>
+      </div>
+      <div class="footer-col"><h5>Quick Links</h5><ul><li><a href="index.html">Home</a></li><li><a href="courses.html">Courses</a></li><li><a href="about.html">About Us</a></li><li><a href="blog.html">Blog</a></li><li><a href="contact.html">Contact</a></li></ul></div>
+      <div class="footer-col"><h5>Learning</h5><ul><li><a href="courses.html">Data Analytics</a></li><li><a href="courses.html">Business Analytics</a></li><li><a href="courses.html">AI & Automation</a></li><li><a href="courses.html">Corporate Training</a></li></ul></div>
+      <div class="footer-col"><h5>Company</h5><ul><li><a href="about.html">About Us</a></li><li><a href="about.html#impact">Impact Projects</a></li><li><a href="contact.html">Business Solutions</a></li><li><a href="contact.html">Partnerships</a></li></ul></div>
+      <div class="footer-col"><h5>Get In Touch</h5><ul><li><a href="mailto:dataklickshub@gmail.com">dataklickshub@gmail.com</a></li><li><a href="https://wa.me/2348065371750" target="_blank" rel="noopener">WhatsApp: +234 806 537 1750</a></li><li>Lagos, Nigeria</li><li><a href="https://www.dataklickshub.com">www.dataklickshub.com</a></li></ul></div>
+    </div>
+    <div class="footer-bottom">
+      <div>© <span data-year>2026</span> DataKlicks Hub. All rights reserved.</div>
+      <div class="footer-bottom-links"><a href="privacy.html">Privacy Policy</a><a href="#">Terms of Use</a><a href="#">Cookie Policy</a></div>
+    </div>
+  </div>
+</footer>
+
+<script src="js/main.js?v=20261006"></script>
+<script src="js/config.js?v=20261006"></script>
+<script src="js/enrol.js?v=20261006"></script>
+<script>
+  (function () {
+    var DK = window.DK;
+    var id = new URLSearchParams(location.search).get('course');
+    var course = id && Object.prototype.hasOwnProperty.call(DK.courses, id) && id !== 'ai-class' ? DK.courses[id] : null;
+
+    if (!course) {
+      // No (valid) course chosen: let the visitor pick one.
+      var grid = document.getElementById('chooserGrid');
+      Object.keys(DK.courses).filter(function (k) { return k !== 'ai-class'; }).forEach(function (k) {
+        var c = DK.courses[k], a = document.createElement('a');
+        a.className = 'card'; a.href = 'enrol.html?course=' + encodeURIComponent(k);
+        var h = document.createElement('h3'); h.textContent = c.title;
+        var p = document.createElement('p'); p.textContent = c.meta;
+        var pr = document.createElement('div'); pr.className = 'price'; pr.textContent = DKEnrol.fmt(c.amount);
+        a.appendChild(h); a.appendChild(p); a.appendChild(pr); grid.appendChild(a);
+      });
+      document.getElementById('chooser').hidden = false;
+      return;
+    }
+
+    document.title = 'Enrol: ' + course.title + ' | DataKlicks Hub';
+    document.getElementById('enrolTitle').textContent = 'Enrol in ' + course.title + '.';
+    document.getElementById('enrolMeta').textContent = course.meta;
+    document.getElementById('sumTitle').textContent = course.title;
+    document.getElementById('sumMeta').textContent = course.meta;
+    document.getElementById('sumFee').textContent = DKEnrol.fmt(course.amount);
+    document.getElementById('payLeadAmount').textContent = DKEnrol.fmt(course.amount);
+    document.getElementById('payAmount').textContent = DKEnrol.fmt(course.amount);
+    document.getElementById('payBank').textContent = DK.bank.bank;
+    document.getElementById('payName').textContent = DK.bank.name;
+    document.getElementById('payNumber').textContent = DK.bank.number;
+    var copy = document.getElementById('copyNumber'); copy.dataset.copy = DK.bank.number;
+    document.getElementById('payWaNumber').textContent = 'Number: ' + DK.whatsappDisplay;
+    document.getElementById('enrolWrap').hidden = false;
+
+    DKEnrol.wireCopy();
+    DKEnrol.wire({
+      courseId: id,
+      form: document.getElementById('enrolForm'),
+      errorBox: document.getElementById('efError'),
+      paymentCard: document.getElementById('paymentStep'),
+      greeting: document.getElementById('paymentGreeting'),
+      notice: document.getElementById('payNotice'),
+      receiptLink: document.getElementById('waReceiptLink')
+    });
+  })();
+</script>
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+</body>
+</html>

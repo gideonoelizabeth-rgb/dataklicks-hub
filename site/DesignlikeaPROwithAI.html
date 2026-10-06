@@ -14,7 +14,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=20261005" />
+<link rel="stylesheet" href="css/styles.css?v=20261006" />
 <style>
   .training-hero {
     padding: 3rem 0 4rem;
@@ -185,118 +185,6 @@
     margin: 0;
   }
 
-  .register-card {
-    background: var(--white);
-    border-radius: var(--radius-lg);
-    padding: 2.25rem;
-    border: 1px solid var(--gray-200);
-    box-shadow: var(--shadow-md);
-    position: sticky;
-    top: 100px;
-  }
-  .register-card h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
-  .register-card > p { color: var(--gray-600); margin-bottom: 1.5rem; font-size: 0.9375rem; }
-
-  .payment-card {
-    display: none;
-    background: linear-gradient(135deg, var(--midnight-navy) 0%, var(--royal-blue-dark) 100%);
-    color: var(--white);
-    border-radius: var(--radius-lg);
-    padding: 2.25rem;
-    box-shadow: var(--shadow-lg);
-    animation: slide-up 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  @keyframes slide-up {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  .payment-card.visible { display: block; }
-  .payment-card h2 { color: var(--white); font-size: 1.5rem; margin-bottom: 0.5rem; }
-  .payment-card .payment-lead {
-    color: rgba(255,255,255,0.85);
-    margin-bottom: 1.5rem;
-    font-size: 0.9375rem;
-  }
-  .payment-details {
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.15);
-    border-radius: var(--radius-md);
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-  }
-  .payment-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.875rem 0;
-    border-bottom: 1px dashed rgba(255,255,255,0.15);
-    gap: 1rem;
-  }
-  .payment-row:last-child { border-bottom: none; }
-  .payment-row .label {
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: rgba(255,255,255,0.6);
-    font-weight: 600;
-  }
-  .payment-row .value {
-    font-family: 'Manrope', sans-serif;
-    font-weight: 700;
-    color: var(--white);
-    font-size: 1.0625rem;
-    text-align: right;
-  }
-  .payment-row .value.amount { color: #7DD3FC; font-size: 1.25rem; }
-  .payment-row .value .copy-btn {
-    background: rgba(255,255,255,0.12);
-    border: none;
-    color: var(--white);
-    padding: 0.375rem 0.625rem;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.75rem;
-    margin-left: 0.5rem;
-    font-family: inherit;
-    transition: background 0.2s;
-  }
-  .payment-row .value .copy-btn:hover { background: rgba(255,255,255,0.22); }
-  .payment-row .value .copy-btn.copied { background: #10b981; }
-  .payment-steps {
-    background: rgba(0,0,0,0.15);
-    border-radius: var(--radius-md);
-    padding: 1.25rem 1.5rem;
-    margin-bottom: 1.5rem;
-    font-size: 0.9375rem;
-    color: rgba(255,255,255,0.9);
-  }
-  .payment-steps h4 {
-    color: var(--white);
-    margin-bottom: 0.75rem;
-    font-size: 0.9375rem;
-  }
-  .payment-steps ol { padding-left: 1.25rem; }
-  .payment-steps li { margin-bottom: 0.5rem; }
-  .payment-cta {
-    background: #25D366;
-    color: var(--white);
-    padding: 1rem 1.5rem;
-    border-radius: var(--radius-sm);
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.625rem;
-    width: 100%;
-    text-decoration: none;
-    transition: background 0.2s, transform 0.2s;
-    font-size: 0.9375rem;
-  }
-  .payment-cta:hover {
-    background: #128C7E;
-    color: var(--white);
-    transform: translateY(-1px);
-  }
 
   @media (max-width: 900px) {
     .training-hero-grid { grid-template-columns: 1fr; }
@@ -448,8 +336,17 @@
                 <input type="tel" id="tf-phone" name="phone" required placeholder="+234 806 537 1750" autocomplete="tel" />
               </div>
             </div>
-            <button type="submit" class="btn btn-primary btn-lg" style="width:100%;margin-top:1rem;">Continue to Payment →</button>
-            <p class="form-hint" style="text-align:center;margin-top:0.75rem;">Your details go straight to our team on WhatsApp.</p>
+            <div class="hp-field" aria-hidden="true">
+              <label for="tf-website">Leave this field empty</label>
+              <input type="text" id="tf-website" name="website" tabindex="-1" autocomplete="off" />
+            </div>
+            <div class="consent-row" style="margin-top:1rem;">
+              <input type="checkbox" id="tf-consent" name="consent" required />
+              <label for="tf-consent">I agree to DataKlicks Hub saving my details to process this registration and email me about it. <a href="privacy.html" target="_blank" rel="noopener">Privacy notice</a></label>
+            </div>
+            <div class="form-error" id="tfError" role="alert"></div>
+            <button type="submit" class="btn btn-primary btn-lg" style="width:100%;">Continue to Payment →</button>
+            <p class="form-hint" style="text-align:center;margin-top:0.75rem;">We'll email you a confirmation with the payment details.</p>
           </form>
         </div>
 
@@ -457,6 +354,7 @@
           <span class="eyebrow" style="color:#7DD3FC;">Payment · Step 2</span>
           <h2 id="paymentGreeting">Thank you. Please complete payment.</h2>
           <p class="payment-lead">Transfer <strong>₦20,000</strong> to the account below, then send your receipt to us on WhatsApp to confirm your slot.</p>
+          <div class="pay-notice" id="payNotice" hidden></div>
 
           <div class="payment-details">
             <div class="payment-row">
@@ -532,89 +430,22 @@
   <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.626.712.226 1.36.194 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
 </a>
 
-<script src="js/main.js?v=20261005"></script>
+<script src="js/main.js?v=20261006"></script>
+<script src="js/config.js?v=20261006"></script>
+<script src="js/enrol.js?v=20261006"></script>
 <script>
-  // Copy-to-clipboard for account details
-  document.querySelectorAll('.copy-btn').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      const text = btn.dataset.copy;
-      try {
-        await navigator.clipboard.writeText(text);
-      } catch {
-        const ta = document.createElement('textarea');
-        ta.value = text;
-        document.body.appendChild(ta);
-        ta.select();
-        try { document.execCommand('copy'); } catch {}
-        document.body.removeChild(ta);
-      }
-      const old = btn.textContent;
-      btn.textContent = 'Copied ✓';
-      btn.classList.add('copied');
-      setTimeout(() => {
-        btn.textContent = old;
-        btn.classList.remove('copied');
-      }, 1800);
-    });
+  DKEnrol.wireCopy();
+  DKEnrol.wire({
+    courseId: 'ai-class',
+    form: document.getElementById('trainingForm'),
+    errorBox: document.getElementById('tfError'),
+    paymentCard: document.getElementById('paymentStep'),
+    greeting: document.getElementById('paymentGreeting'),
+    notice: document.getElementById('payNotice'),
+    receiptLink: document.getElementById('waReceiptLink')
   });
-
-  // Training registration flow
-  const trainingForm = document.getElementById('trainingForm');
-  const paymentStep = document.getElementById('paymentStep');
-  const paymentGreeting = document.getElementById('paymentGreeting');
-  const waReceiptLink = document.getElementById('waReceiptLink');
-
-  if (trainingForm) {
-    trainingForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      if (!trainingForm.checkValidity()) {
-        trainingForm.reportValidity();
-        return;
-      }
-      const data = new FormData(trainingForm);
-      const name = (data.get('name') || '').toString().trim();
-      const email = (data.get('email') || '').toString().trim();
-      const country = (data.get('country') || '').toString().trim();
-      const phone = (data.get('phone') || '').toString().trim();
-      const firstName = name.split(' ')[0] || 'there';
-
-      // Notify DataKlicks Hub team via WhatsApp with registration details
-      const teamMsg =
-        `New registration — *Create Smarter with AI* class%0A%0A` +
-        `*Name:* ${encodeURIComponent(name)}%0A` +
-        `*Email:* ${encodeURIComponent(email)}%0A` +
-        `*Country:* ${encodeURIComponent(country)}%0A` +
-        `*Phone:* ${encodeURIComponent(phone)}%0A%0A` +
-        `Awaiting payment of ₦20,000 to Wema Bank · DataKlicks Hub · 0125900780.`;
-      const teamUrl = `https://wa.me/2348065371750?text=${teamMsg}`;
-
-      // Pre-fill the "send receipt" WhatsApp link with the registrant's identifying info
-      const receiptMsg =
-        `Hello DataKlicks Hub, I have made payment for the *Create Smarter with AI* class.%0A%0A` +
-        `*Name:* ${encodeURIComponent(name)}%0A` +
-        `*Email:* ${encodeURIComponent(email)}%0A` +
-        `*Phone:* ${encodeURIComponent(phone)}%0A%0A` +
-        `Attaching my payment receipt.`;
-      waReceiptLink.href = `https://wa.me/2348065371750?text=${receiptMsg}`;
-
-      // Personalize greeting
-      paymentGreeting.textContent = `Thank you, ${firstName}. Please complete payment.`;
-
-      // Reveal payment card & scroll to it
-      paymentStep.classList.add('visible');
-      document.querySelector('.register-card').style.opacity = '0.55';
-      document.querySelector('.register-card').style.pointerEvents = 'none';
-      trainingForm.querySelector('button[type="submit"]').textContent = '✓ Registered';
-      trainingForm.querySelector('button[type="submit"]').disabled = true;
-
-      // Fire off the team notification WhatsApp
-      window.open(teamUrl, '_blank', 'noopener');
-
-      setTimeout(() => {
-        paymentStep.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 100);
-    });
-  }
 </script>
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
