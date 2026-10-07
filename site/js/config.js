@@ -10,7 +10,7 @@ window.DK = {
   // Shows the "Discount code" box on the class page. Keep this false until the
   // backend has the discount-code update deployed (its health check lists
   // "discount-codes"); the codes themselves live only in backend/Code.gs.
-  discountCodes: false,
+  discountCodes: true,
 
   whatsapp: '2348065371750',
   whatsappDisplay: '+234 806 537 1750',
