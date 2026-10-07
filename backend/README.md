@@ -52,6 +52,22 @@ Edit `CONFIG.COURSES` at the top of `Code.gs` (this is where the real price live
 save, then **Deploy → Manage deployments → pencil icon → Version: New version →
 Deploy**. Also update the displayed price in `site/js/config.js`.
 
+## Discount codes
+
+Codes are listed in `CONFIG.DISCOUNTS` at the top of `Code.gs` (never on the website):
+
+```
+'50tech':   { percent: 50,  courses: ['ai-class'], maxUses: 10 },
+'freetech': { percent: 100, courses: ['ai-class'], maxUses: 10 }
+```
+
+- `percent: 100` means free. Free registrations are marked **Paid** automatically.
+- `maxUses` is how many people can use the code. Uses are counted from the **Notes**
+  column, so do not edit that column. Setting a row's Status to **Cancelled** frees its
+  place for someone else. Leave `maxUses` out for an unlimited code.
+- To add or change a code, edit the list, save, then **Deploy → Manage deployments →
+  pencil icon → New version → Deploy**.
+
 ## Limits
 
 - Gmail allows about 100 emails a day on a free account. The script stops sending

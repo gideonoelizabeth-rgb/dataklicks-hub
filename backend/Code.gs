@@ -56,10 +56,12 @@ var CONFIG = {
 
   // Discount codes. Write the code in lower case here; visitors can type it in any
   // capitalisation. percent: 100 means free. courses: the course ids it works for.
+  // maxUses: how many people can use the code (leave it out for no limit). Uses are
+  // counted from the sheet's Notes column, so a Cancelled registration frees its place.
   // Codes are kept here (not on the website) so nobody can find them in the page source.
   DISCOUNTS: {
-    '50tech':   { percent: 50,  courses: ['ai-class'] },
-    'freetech': { percent: 100, courses: ['ai-class'] }
+    '50tech':   { percent: 50,  courses: ['ai-class'], maxUses: 10 },
+    'freetech': { percent: 100, courses: ['ai-class'], maxUses: 10 }
   }
 };
 
@@ -85,7 +87,7 @@ function doPost(e) {
 
 // Health check only. Never returns registration data.
 function doGet() {
-  return ContentService.createTextOutput(JSON.stringify({ ok: true, service: 'DataKlicks Hub registrations', features: ['discount-codes'] }))
+  return ContentService.createTextOutput(JSON.stringify({ ok: true, service: 'DataKlicks Hub registrations', features: ['discount-codes', 'code-limits'] }))
     .setMimeType(ContentService.MimeType.JSON);
 }
 
@@ -125,6 +127,7 @@ function handleRegistration_(d) {
       // Registered at full price, then came back with a discount code: apply the code
       // to that registration instead of calling it a duplicate.
       if (existing.status === 'Pending' && pricing.final < owed) {
+        if (codeUsedUp_(rows, v.code)) { return { ok: false, error: usedUpMessage_(pricing) }; }
         sh.getRange(existing.rowIndex, COL.AMOUNT).setValue(pricing.final);
         sh.getRange(existing.rowIndex, COL.NOTES).setValue(noteFor_(pricing));
         if (free) {
@@ -151,6 +154,8 @@ function handleRegistration_(d) {
       return { ok: true, duplicate: true, status: existing.status, regId: existing.regId,
         amount: owed, free: owed === 0, discount: null, emailed: false };
     }
+
+    if (codeUsedUp_(rows, v.code)) { return { ok: false, error: usedUpMessage_(pricing) }; }
 
     var regId = 'DK-' + Utilities.getUuid().replace(/-/g, '').slice(0, 6).toUpperCase();
     var status = free ? 'Paid' : 'Pending';
@@ -190,6 +195,24 @@ function noteFor_(pricing) {
   return pricing.code
     ? 'Code ' + pricing.code + ' (' + pricing.percent + '% off, list NGN ' + pricing.list + ')'
     : '';
+}
+
+// How many people currently hold this code. A Cancelled registration frees its place.
+function usesOf_(rows, code) {
+  var tag = 'Code ' + String(code).toUpperCase() + ' (';
+  return rows.filter(function (r) {
+    return r.status !== 'Cancelled' && r.notes.indexOf(tag) === 0;
+  }).length;
+}
+
+function codeUsedUp_(rows, code) {
+  if (!code) { return false; }
+  var max = CONFIG.DISCOUNTS[code].maxUses;
+  return typeof max === 'number' && usesOf_(rows, code) >= max;
+}
+
+function usedUpMessage_(pricing) {
+  return 'Sorry, the code ' + pricing.code + ' has been fully used. You can still register at the normal price: clear the code box and try again.';
 }
 
 function validate_(d) {
@@ -306,7 +329,8 @@ function readRows_(sh) {
       course: String(r[6]),
       amount: r[7],
       status: String(r[8] || 'Pending'),
-      paidAt: r[9]
+      paidAt: r[9],
+      notes: String(r[12] || '')
     };
   }).filter(function (r) { return r.email; });
 }
