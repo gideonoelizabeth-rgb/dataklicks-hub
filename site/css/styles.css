@@ -1680,3 +1680,10 @@ img { max-width: 100%; height: auto; display: block; }
 .pay-notice a { color: #7DD3FC; text-decoration: underline; }
 
 [hidden] { display: none !important; }
+
+/* Nothing left to pay (free registration or already confirmed): hide the payment details */
+.payment-card.is-done .payment-lead,
+.payment-card.is-done .payment-details,
+.payment-card.is-done .payment-steps,
+.payment-card.is-done .payment-cta,
+.payment-card.is-done .payment-cta + p { display: none; }

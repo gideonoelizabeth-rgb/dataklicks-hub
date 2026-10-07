@@ -74,7 +74,8 @@
         consent: !!form.querySelector('[name="consent"]').checked,
         website: String(d.get('website') || ''),
         source: sourceInfo(),
-        page: location.pathname
+        page: location.pathname,
+        code: (DK.discountCodes && form.querySelector('[name="code"]')) ? String(d.get('code') || '').trim() : ''
       };
 
       var label = btn.textContent;
@@ -89,13 +90,39 @@
         }
 
         var first = name.split(' ')[0] || 'there';
+        // What this person actually owes (the server applies any discount code).
+        var amount = res.saved && res.amount != null ? Number(res.amount) : course.amount;
+        // Nothing left to pay: a free registration, or one that is already confirmed.
+        var done = !!res.saved && (amount === 0 || (res.duplicate && res.status === 'Paid'));
+        var disc = res.saved && res.discount ? res.discount : null;
         var ref = res.regId ? ' Reg ID: ' + res.regId + '.' : '';
-        var msg = 'Hello DataKlicks Hub, I have made payment for ' + course.title + '.' + ref +
+        var msg = 'Hello DataKlicks Hub, I have made payment of ' + fmt(amount) + ' for ' + course.title + '.' + ref +
           ' Name: ' + name + '. Email: ' + email + '. Phone: ' + phone + '. Attaching my receipt.';
         opts.receiptLink.href = 'https://wa.me/' + DK.whatsapp + '?text=' + encodeURIComponent(msg);
-        opts.greeting.textContent = res.duplicate
-          ? 'Welcome back, ' + first + '. You are already registered.'
-          : 'Thank you, ' + first + '. Please complete payment.';
+
+        if (res.saved) {
+          ['payAmount', 'payLeadAmount'].forEach(function (id) {
+            var el = document.getElementById(id); if (el) el.textContent = fmt(amount);
+          });
+        }
+        opts.paymentCard.classList.toggle('is-done', done);
+        var eyebrow = opts.paymentCard.querySelector('.eyebrow');
+        if (eyebrow) eyebrow.textContent = done ? 'Registration complete' : 'Payment · Step 2';
+
+        if (res.duplicate) {
+          opts.greeting.textContent = 'Welcome back, ' + first + '. You are already registered.';
+        } else if (done) {
+          opts.greeting.textContent = 'You are in, ' + first + '!';
+        } else if (res.updated) {
+          opts.greeting.textContent = 'Code applied, ' + first + '. Your fee is now ' + fmt(amount) + '.';
+        } else {
+          opts.greeting.textContent = 'Thank you, ' + first + '. Please complete payment.';
+        }
+        var discNote = '';
+        if (disc && !done) {
+          discNote = 'Code <strong>' + String(disc.code).replace(/[^A-Za-z0-9]/g, '') + '</strong> applied: ' +
+            Number(disc.percent) + '% off. You pay ' + fmt(amount) + ' instead of ' + fmt(disc.list) + '. ';
+        }
 
         var note;
         if (res.reason === 'not-configured') {
@@ -108,15 +135,19 @@
           note = 'Your registration message is ready in WhatsApp. Tap <strong>Send</strong> so our team receives it. ' +
             'Did not open? <a href="' + teamUrl + '" target="_blank" rel="noopener">Send it from here</a>.';
         } else if (res.saved && res.duplicate) {
-          note = 'We already have your registration for this course' + (res.status === 'Paid' ? ' and your payment is confirmed.' : '. Payment details are below.');
+          note = 'We already have your registration for this course' + (res.status === 'Paid' ? ' and it is confirmed.' : '. Payment details are below.');
+        } else if (res.saved && done) {
+          note = (disc ? 'Code <strong>' + String(disc.code).replace(/[^A-Za-z0-9]/g, '') + '</strong> applied: your place is free, no payment needed. ' : 'Your place is confirmed. ') +
+            (res.emailed ? 'We have emailed your confirmation to <strong data-email></strong>.' : 'Keep an eye on your email for the joining details.');
         } else if (res.saved && res.emailed) {
-          note = 'Your registration is saved. We have emailed the payment details and a summary to <strong data-email></strong>.';
+          note = discNote + 'Your registration is saved. We have emailed the payment details and a summary to <strong data-email></strong>.';
         } else if (res.saved) {
-          note = 'Your registration is saved. If you do not receive an email, the payment details below are all you need.';
+          note = discNote + 'Your registration is saved. If you do not receive an email, the payment details below are all you need.';
         } else {
           var fb = 'https://wa.me/' + DK.whatsapp + '?text=' + encodeURIComponent(
             'Hello DataKlicks Hub, I would like to register for ' + course.title + '. Name: ' + name +
-            '. Email: ' + email + '. Phone: ' + phone + '. Country: ' + country + '.');
+            '. Email: ' + email + '. Phone: ' + phone + '. Country: ' + country + '.' +
+            (payload.code ? ' Discount code: ' + payload.code + '.' : ''));
           note = 'We could not confirm that your registration was saved automatically. To be safe, ' +
             '<a href="' + fb + '" target="_blank" rel="noopener">send your details to us on WhatsApp</a>.';
         }
@@ -127,7 +158,8 @@
 
         opts.paymentCard.classList.add('visible');
         var regCard = form.closest('.register-card');
-        if (regCard) { regCard.style.opacity = '0.55'; regCard.style.pointerEvents = 'none'; }
+        // Unpin the form (it is sticky on wide screens) or it would sit on top of the payment details.
+        if (regCard) { regCard.style.opacity = '0.55'; regCard.style.pointerEvents = 'none'; regCard.style.position = 'static'; }
         btn.textContent = '✓ Registered';
         setTimeout(function () { opts.paymentCard.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
       });

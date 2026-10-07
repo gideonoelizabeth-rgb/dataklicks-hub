@@ -7,6 +7,11 @@ window.DK = {
   // to sending the details to WhatsApp.
   endpoint: 'https://script.google.com/macros/s/AKfycbyp3H9XviC3yEpsMRhWCnoHtKRLlxomkgyimpxJjcFX8JJ8Zpt9mjdfbpmRhv_RGbodRw/exec',
 
+  // Shows the "Discount code" box on the class page. Keep this false until the
+  // backend has the discount-code update deployed (its health check lists
+  // "discount-codes"); the codes themselves live only in backend/Code.gs.
+  discountCodes: false,
+
   whatsapp: '2348065371750',
   whatsappDisplay: '+234 806 537 1750',
   bank: { bank: 'WEMA BANK', name: 'DATAKLICKS HUB', number: '0125900780' },

@@ -52,6 +52,14 @@ var CONFIG = {
       where: 'Hybrid',
       joinLink: ''
     }
+  },
+
+  // Discount codes. Write the code in lower case here; visitors can type it in any
+  // capitalisation. percent: 100 means free. courses: the course ids it works for.
+  // Codes are kept here (not on the website) so nobody can find them in the page source.
+  DISCOUNTS: {
+    '50tech':   { percent: 50,  courses: ['ai-class'] },
+    'freetech': { percent: 100, courses: ['ai-class'] }
   }
 };
 
@@ -77,7 +85,7 @@ function doPost(e) {
 
 // Health check only. Never returns registration data.
 function doGet() {
-  return ContentService.createTextOutput(JSON.stringify({ ok: true, service: 'DataKlicks Hub registrations' }))
+  return ContentService.createTextOutput(JSON.stringify({ ok: true, service: 'DataKlicks Hub registrations', features: ['discount-codes'] }))
     .setMimeType(ContentService.MimeType.JSON);
 }
 
@@ -89,6 +97,9 @@ function handleRegistration_(d) {
   var v = validate_(d || {});
   if (v.error) { return { ok: false, error: v.error }; }
   var course = CONFIG.COURSES[v.courseId];
+  var pricing = priceFor_(course, v.code);
+  var free = pricing.final === 0;
+  var discount = pricing.code ? { code: pricing.code, percent: pricing.percent, list: pricing.list } : null;
 
   var lock = LockService.getScriptLock();
   lock.waitLock(20000);
@@ -109,31 +120,76 @@ function handleRegistration_(d) {
     })[0];
 
     if (existing) {
+      var owed = Number(existing.amount) || 0;
+
+      // Registered at full price, then came back with a discount code: apply the code
+      // to that registration instead of calling it a duplicate.
+      if (existing.status === 'Pending' && pricing.final < owed) {
+        sh.getRange(existing.rowIndex, COL.AMOUNT).setValue(pricing.final);
+        sh.getRange(existing.rowIndex, COL.NOTES).setValue(noteFor_(pricing));
+        if (free) {
+          sh.getRange(existing.rowIndex, COL.STATUS).setValue('Paid');
+          sh.getRange(existing.rowIndex, COL.PAIDAT).setValue(now);
+        }
+        var updatedMine = readRows_(sh).filter(function (r) { return r.email === v.email; });
+        var emailedUpdate = sendMail_({
+          to: v.email,
+          subject: (free ? 'You are registered - ' : 'Updated fee - ') + course.title,
+          html: free ? freeEmailHtml_(v, course, existing.regId, updatedMine, pricing)
+                     : registrationEmailHtml_(v, course, existing.regId, updatedMine, pricing)
+        });
+        sendMail_({
+          to: CONFIG.ADMIN_EMAIL,
+          subject: 'Discount applied: ' + v.name + ' - ' + course.title + ' [' + pricing.code + ']',
+          html: adminEmailHtml_(v, course, existing.regId, pricing)
+        });
+        return { ok: true, duplicate: false, updated: true, regId: existing.regId,
+          amount: pricing.final, free: free, status: free ? 'Paid' : 'Pending',
+          discount: discount, emailed: emailedUpdate };
+      }
+
       return { ok: true, duplicate: true, status: existing.status, regId: existing.regId,
-        amount: course.amount, emailed: false };
+        amount: owed, free: owed === 0, discount: null, emailed: false };
     }
 
     var regId = 'DK-' + Utilities.getUuid().replace(/-/g, '').slice(0, 6).toUpperCase();
+    var status = free ? 'Paid' : 'Pending';
     sh.appendRow([now, regId, v.name, v.email, v.phone, v.country, course.title,
-      course.amount, 'Pending', '', v.source, v.page, '']);
+      pricing.final, status, free ? now : '', v.source, v.page, noteFor_(pricing)]);
     rows = readRows_(sh);
 
     var mine = rows.filter(function (r) { return r.email === v.email; });
     var emailed = sendMail_({
       to: v.email,
-      subject: 'Registration received - ' + course.title,
-      html: registrationEmailHtml_(v, course, regId, mine)
+      subject: (free ? 'You are registered - ' : 'Registration received - ') + course.title,
+      html: free ? freeEmailHtml_(v, course, regId, mine, pricing)
+                 : registrationEmailHtml_(v, course, regId, mine, pricing)
     });
     sendMail_({
       to: CONFIG.ADMIN_EMAIL,
-      subject: 'New registration: ' + v.name + ' - ' + course.title,
-      html: adminEmailHtml_(v, course, regId)
+      subject: 'New registration: ' + v.name + ' - ' + course.title + (pricing.code ? ' [' + pricing.code + ']' : ''),
+      html: adminEmailHtml_(v, course, regId, pricing)
     });
 
-    return { ok: true, duplicate: false, regId: regId, amount: course.amount, emailed: emailed };
+    return { ok: true, duplicate: false, regId: regId, amount: pricing.final, free: free,
+      status: status, discount: discount, emailed: emailed };
   } finally {
     lock.releaseLock();
   }
+}
+
+// What this registration costs once any discount code is applied.
+function priceFor_(course, code) {
+  var list = course.amount;
+  if (!code) { return { list: list, final: list, percent: 0, code: '' }; }
+  var pct = CONFIG.DISCOUNTS[code].percent;
+  return { list: list, final: Math.max(0, Math.round(list * (100 - pct) / 100)), percent: pct, code: code.toUpperCase() };
+}
+
+function noteFor_(pricing) {
+  return pricing.code
+    ? 'Code ' + pricing.code + ' (' + pricing.percent + '% off, list NGN ' + pricing.list + ')'
+    : '';
 }
 
 function validate_(d) {
@@ -162,8 +218,16 @@ function validate_(d) {
 
   if (d.consent !== true) { return { error: 'Please accept the privacy notice to continue.' }; }
 
+  var code = str(d.code, 30).toLowerCase();
+  if (code) {
+    var dc = Object.prototype.hasOwnProperty.call(CONFIG.DISCOUNTS, code) ? CONFIG.DISCOUNTS[code] : null;
+    if (!dc || dc.courses.indexOf(courseId) === -1) {
+      return { error: 'That discount code is not valid for this course.' };
+    }
+  }
+
   return {
-    name: name, email: email, phone: phone, country: country, courseId: courseId,
+    name: name, email: email, phone: phone, country: country, courseId: courseId, code: code,
     source: clean_(str(d.source, 200)), page: clean_(str(d.page, 120))
   };
 }
@@ -191,7 +255,9 @@ function onStatusEdit(e) {
   var email = String(row[COL.EMAIL - 1]).trim().toLowerCase();
   var rows = readRows_(sh).filter(function (r) { return r.email === email; });
   var courseTitle = row[COL.COURSE - 1];
-  var course = findCourseByTitle_(courseTitle) || { title: courseTitle, amount: row[COL.AMOUNT - 1], when: '', where: '', joinLink: '' };
+  var base = findCourseByTitle_(courseTitle) || { title: courseTitle, when: '', where: '', joinLink: '' };
+  // Use the amount actually recorded for this person (it may be discounted), not the list price.
+  var course = { title: base.title, when: base.when, where: base.where, joinLink: base.joinLink, amount: row[COL.AMOUNT - 1] };
 
   sendMail_({
     to: email,
@@ -230,8 +296,9 @@ function readRows_(sh) {
   var last = sh.getLastRow();
   if (last < 2) { return []; }
   var vals = sh.getRange(2, 1, last - 1, HEADERS.length).getValues();
-  return vals.map(function (r) {
+  return vals.map(function (r, i) {
     return {
+      rowIndex: i + 2,
       timestamp: r[0] instanceof Date ? r[0] : new Date(r[0]),
       regId: String(r[1]),
       name: String(r[2]),
@@ -306,25 +373,40 @@ function summaryTable_(rows) {
     '<th style="padding:8px;">Fee</th><th style="padding:8px;">Status</th></tr>' + tr + '</table>';
 }
 
-function detailsBlock_(course) {
+function feeLine_(course, pricing) {
+  if (pricing && pricing.code) {
+    var now = pricing.final === 0 ? 'Free' : naira_(pricing.final);
+    return '<b>Fee:</b> ' + esc_(now) + ' (code ' + esc_(pricing.code) + ': ' + pricing.percent +
+      '% off, normal price ' + esc_(naira_(pricing.list)) + ')';
+  }
+  return '<b>Fee:</b> ' + esc_(naira_(course.amount));
+}
+
+function detailsBlock_(course, pricing) {
   var lines = [];
   if (course.when) { lines.push('<b>When:</b> ' + esc_(course.when)); }
   if (course.where) { lines.push('<b>Where:</b> ' + esc_(course.where)); }
-  lines.push('<b>Fee:</b> ' + esc_(naira_(course.amount)));
+  lines.push(feeLine_(course, pricing));
   return '<p style="margin:0 0 12px;">' + lines.join('<br>') + '</p>';
+}
+
+function joinBlock_(course) {
+  return course.joinLink
+    ? '<p><a href="' + esc_(course.joinLink) + '" style="display:inline-block;background:#2346D3;color:#fff;text-decoration:none;padding:12px 20px;border-radius:8px;font-weight:bold;">Join link</a></p>'
+    : '<p>We will send you the joining details before the start.</p>';
 }
 
 function firstName_(name) { return String(name).split(' ')[0] || 'there'; }
 
-function registrationEmailHtml_(v, course, regId, mine) {
+function registrationEmailHtml_(v, course, regId, mine, pricing) {
   var wa = 'https://wa.me/' + CONFIG.WHATSAPP_NUMBER + '?text=' + encodeURIComponent(
-    'Hello DataKlicks Hub, I have made payment for ' + course.title + '. Reg ID: ' + regId + '. Name: ' + v.name + '. Attaching my receipt.');
+    'Hello DataKlicks Hub, I have made payment of ' + naira_(pricing.final) + ' for ' + course.title + '. Reg ID: ' + regId + '. Name: ' + v.name + '. Attaching my receipt.');
   var inner =
     '<p>Hi ' + esc_(firstName_(v.name)) + ',</p>' +
     '<p>Thank you for registering for <b>' + esc_(course.title) + '</b>. Your registration ID is <b>' + esc_(regId) + '</b>.</p>' +
-    detailsBlock_(course) +
+    detailsBlock_(course, pricing) +
     '<div style="background:#F4F7FF;border-radius:8px;padding:16px;margin:16px 0;">' +
-    '<b>To secure your place, pay ' + esc_(naira_(course.amount)) + ' to:</b><br>' +
+    '<b>To secure your place, pay ' + esc_(naira_(pricing.final)) + ' to:</b><br>' +
     'Bank: ' + esc_(CONFIG.BANK.bank) + '<br>Account name: ' + esc_(CONFIG.BANK.name) + '<br>' +
     'Account number: <b>' + esc_(CONFIG.BANK.number) + '</b></div>' +
     '<p>Then send your payment receipt on WhatsApp so we can confirm your slot:</p>' +
@@ -334,22 +416,31 @@ function registrationEmailHtml_(v, course, regId, mine) {
 }
 
 function paymentConfirmedHtml_(name, course, regId, rows) {
-  var join = course.joinLink
-    ? '<p><a href="' + esc_(course.joinLink) + '" style="display:inline-block;background:#2346D3;color:#fff;text-decoration:none;padding:12px 20px;border-radius:8px;font-weight:bold;">Join link</a></p>'
-    : '<p>We will send you the joining details before the start.</p>';
   var inner =
     '<p>Hi ' + esc_(firstName_(name)) + ',</p>' +
     '<p>We have confirmed your payment for <b>' + esc_(course.title) + '</b> (ref <b>' + esc_(regId) + '</b>). Your place is secured.</p>' +
-    detailsBlock_(course) + join + summaryTable_(rows);
+    detailsBlock_(course) + joinBlock_(course) + summaryTable_(rows);
   return shell_('Payment confirmed', inner);
 }
 
-function adminEmailHtml_(v, course, regId) {
+// For a free registration (100% discount code): no payment step, no bank details.
+function freeEmailHtml_(v, course, regId, mine, pricing) {
+  var inner =
+    '<p>Hi ' + esc_(firstName_(v.name)) + ',</p>' +
+    '<p>You are registered for <b>' + esc_(course.title) + '</b>. Your place is confirmed and <b>no payment is needed</b> (code ' + esc_(pricing.code) + ' applied). Your registration ID is <b>' + esc_(regId) + '</b>.</p>' +
+    detailsBlock_(course, pricing) + joinBlock_(course) + summaryTable_(mine);
+  return shell_('You are registered', inner);
+}
+
+function adminEmailHtml_(v, course, regId, pricing) {
+  var paidLine = pricing.final === 0
+    ? '<p>This registration is free (code ' + esc_(pricing.code) + '), so it is already marked <b>Paid</b>. No payment to chase.</p>'
+    : '<p>When their receipt arrives, set Status to <b>Paid</b> in the sheet and they will be emailed automatically.</p>';
   var inner =
     '<p><b>' + esc_(v.name) + '</b> registered for <b>' + esc_(course.title) + '</b> (' + esc_(regId) + ').</p>' +
     '<p>Email: ' + esc_(v.email) + '<br>Phone: ' + esc_(v.phone) + '<br>Country: ' + esc_(v.country) +
-    '<br>Fee: ' + esc_(naira_(course.amount)) + '<br>Source: ' + esc_(v.source || 'direct') + '</p>' +
-    '<p>When their receipt arrives, set Status to <b>Paid</b> in the sheet and they will be emailed automatically.</p>' +
+    '<br>' + feeLine_(course, pricing) + '<br>Source: ' + esc_(v.source || 'direct') + '</p>' +
+    paidLine +
     '<p><a href="' + esc_(SpreadsheetApp.getActiveSpreadsheet().getUrl()) + '">Open the registrations sheet</a></p>';
   return shell_('New registration', inner);
 }
