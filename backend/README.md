@@ -2,8 +2,8 @@
 
 Every registration from the website is saved as a row in a Google Sheet you own,
 the registrant gets a confirmation email listing everything they have registered
-for, and you get a "New registration" email. Setting a row's **Status** to **Paid**
-emails the registrant a payment confirmation.
+for, and you get an hourly "New registrations" summary email. Setting a row's
+**Status** to **Paid** emails the registrant a payment confirmation.
 
 No server, no paid service. Setup takes about 10 minutes, once.
 
@@ -32,8 +32,9 @@ No server, no paid service. Setup takes about 10 minutes, once.
 ## Test it
 
 1. Open `/enrol?course=sql` on the live site and register with your own email.
-2. Check: a new row in **Registrations**, a confirmation email in your inbox, and
-   a "New registration" email in the admin inbox.
+2. Check: a new row in **Registrations** (its **Email status** column says
+   `Sent ...`) and a confirmation email in your inbox. The admin summary email
+   arrives within the hour.
 3. In the sheet, change that row's **Status** to **Paid**. A "Payment confirmed"
    email should arrive within a few seconds.
 4. Delete the test row.
@@ -87,9 +88,35 @@ Codes are listed in `CONFIG.DISCOUNTS` at the top of `Code.gs` (never on the web
 - To add or change a code, edit the list, save, then **Deploy → Manage deployments →
   pencil icon → New version → Deploy**.
 
+## When someone says they did not get the email
+
+Every registration row has an **Email status** column:
+
+- `Sent 7 Oct 14:05` - Gmail accepted the email. If they cannot find it, ask them to check
+  **Spam / Promotions** and mark it "Not spam", and to check the address on their row for typos.
+- `NOT SENT: daily email limit reached` (or another reason) - the registration is saved
+  but the email did not go out. The hourly timer retries it automatically for 72 hours,
+  and also re-sends it if the person registers again.
+- `Paid email sent ...` / `Paid email NOT sent: ...` - the result of the "Payment confirmed" email.
+
+Two functions you can run by hand (select it in the Apps Script editor, click **Run**):
+
+- **checkEmailHealth** - counts sent / not sent, lists the reasons, and shows how much of
+  today's email allowance is left. It is also emailed to you.
+- **resendMissedConfirmations** - run once after upgrading. It emails everyone from the
+  last 72 hours who is Pending (or registered free) and whose Email status is blank or
+  `NOT SENT`. Someone who did get the first email may get it a second time.
+
+Opening the web app URL in a browser also shows `emailQuotaRemaining` and `emailsSentToday`.
+
+You get one summary email an hour instead of one per registration (this halves the emails
+used per sign-up). To get an instant email per registration again, set
+`ADMIN_EMAIL_MODE: 'instant'` in `Code.gs`.
+
 ## Limits
 
 - Gmail allows about 100 emails a day on a free account. The script stops sending
-  at 90 a day but still saves every registration.
+  at 90 a day but still saves every registration, and retries unsent confirmations
+  the next hour.
 - The sheet is the database. Do not rename the **Registrations** tab or reorder the
   columns.

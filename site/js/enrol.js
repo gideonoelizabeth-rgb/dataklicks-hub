@@ -124,6 +124,10 @@
             Number(disc.percent) + '% off. You pay ' + fmt(amount) + ' instead of ' + fmt(disc.list) + '. ';
         }
 
+        var spamHint = 'It can take a minute. If you do not see it, check your <strong>Spam or Promotions</strong> folder and mark it "Not spam".';
+        var helpUrl = 'https://wa.me/' + DK.whatsapp + '?text=' + encodeURIComponent(
+          'Hello DataKlicks Hub, I registered for ' + course.title + (res.regId ? ' (Reg ID ' + res.regId + ')' : '') +
+          ' but have not received my email. My email is ' + email + '.');
         var note;
         if (res.reason === 'not-configured') {
           // Backend not set up yet: send the registration to the team over WhatsApp, as before.
@@ -135,14 +139,17 @@
           note = 'Your registration message is ready in WhatsApp. Tap <strong>Send</strong> so our team receives it. ' +
             'Did not open? <a href="' + teamUrl + '" target="_blank" rel="noopener">Send it from here</a>.';
         } else if (res.saved && res.duplicate) {
-          note = 'We already have your registration for this course' + (res.status === 'Paid' ? ' and it is confirmed.' : '. Payment details are below.');
+          note = 'We already have your registration for this course' + (res.status === 'Paid' ? ' and it is confirmed.' : '. Payment details are below.') +
+            (res.emailed ? ' We have just emailed the details to <strong data-email></strong>. ' + spamHint : '');
         } else if (res.saved && done) {
           note = (disc ? 'Code <strong>' + String(disc.code).replace(/[^A-Za-z0-9]/g, '') + '</strong> applied: your place is free, no payment needed. ' : 'Your place is confirmed. ') +
-            (res.emailed ? 'We have emailed your confirmation to <strong data-email></strong>.' : 'Keep an eye on your email for the joining details.');
+            (res.emailed ? 'We have emailed your confirmation to <strong data-email></strong>. ' + spamHint
+                         : 'Your email did not go out just now, but your place is saved. We will email you the joining details, or <a href="' + helpUrl + '" target="_blank" rel="noopener">message us on WhatsApp</a>.');
         } else if (res.saved && res.emailed) {
-          note = discNote + 'Your registration is saved. We have emailed the payment details and a summary to <strong data-email></strong>.';
+          note = discNote + 'Your registration is saved. We have emailed the payment details and a summary to <strong data-email></strong>. ' + spamHint;
         } else if (res.saved) {
-          note = discNote + 'Your registration is saved. If you do not receive an email, the payment details below are all you need.';
+          note = discNote + 'Your registration is saved, and the payment details are below. Our email to you did not go out just now; we will retry shortly. ' +
+            'You do not need to wait for it: pay with the details below and send your receipt on WhatsApp.';
         } else {
           var fb = 'https://wa.me/' + DK.whatsapp + '?text=' + encodeURIComponent(
             'Hello DataKlicks Hub, I would like to register for ' + course.title + '. Name: ' + name +

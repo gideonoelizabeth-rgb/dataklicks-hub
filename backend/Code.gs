@@ -29,6 +29,14 @@ var CONFIG = {
   FOLLOW_UP_MAX_AGE_DAYS: 14,
   EMAIL_RESERVE_FOR_NEW_SIGNUPS: 20,
 
+  // How you hear about new registrations. 'digest' = one email an hour listing the new
+  // sign-ups (this saves your daily email allowance for the registrants); 'instant' =
+  // one email to you per registration (uses twice as many emails per sign-up).
+  ADMIN_EMAIL_MODE: 'digest',
+
+  // A confirmation email that could not be sent is retried every hour for this long.
+  RETRY_MAX_AGE_HOURS: 72,
+
   // Prices live here (not in the browser) so a visitor cannot change what they owe.
   // Add a joinLink (e.g. a Google Meet URL) when you have one; it is added to the
   // payment-confirmed email.
@@ -77,9 +85,12 @@ var CONFIG = {
 };
 
 var HEADERS = ['Timestamp', 'Reg ID', 'Name', 'Email', 'Phone', 'Country', 'Course',
-  'Amount (NGN)', 'Status', 'Paid at', 'Source', 'Page', 'Notes', 'Reminder sent'];
+  'Amount (NGN)', 'Status', 'Paid at', 'Source', 'Page', 'Notes', 'Reminder sent', 'Email status'];
 var COL = { TS: 1, ID: 2, NAME: 3, EMAIL: 4, PHONE: 5, COUNTRY: 6, COURSE: 7,
-  AMOUNT: 8, STATUS: 9, PAIDAT: 10, SOURCE: 11, PAGE: 12, NOTES: 13, REMINDER: 14 };
+  AMOUNT: 8, STATUS: 9, PAIDAT: 10, SOURCE: 11, PAGE: 12, NOTES: 13, REMINDER: 14, EMAILSTATUS: 15 };
+
+// Why the last email could not be sent (set by sendMail_).
+var LAST_MAIL_ERROR = '';
 
 /* ---------- Web app entry points ---------- */
 
@@ -99,10 +110,14 @@ function doPost(e) {
 // Health check only. Never returns registration data.
 function doGet() {
   var timer = ScriptApp.getProjectTriggers().some(function (t) { return t.getHandlerFunction() === 'sendFollowUps'; });
+  var quota = null;
+  try { quota = MailApp.getRemainingDailyQuota(); } catch (err) { quota = null; }
   return ContentService.createTextOutput(JSON.stringify({
     ok: true, service: 'DataKlicks Hub registrations',
-    features: ['discount-codes', 'code-limits', 'payment-reminders'],
-    reminderTimerInstalled: timer
+    features: ['discount-codes', 'code-limits', 'payment-reminders', 'email-status'],
+    reminderTimerInstalled: timer,
+    emailQuotaRemaining: quota,
+    emailsSentToday: emailsSentToday_()
   })).setMimeType(ContentService.MimeType.JSON);
 }
 
@@ -156,18 +171,28 @@ function handleRegistration_(d) {
           html: free ? freeEmailHtml_(v, course, existing.regId, updatedMine, pricing)
                      : registrationEmailHtml_(v, course, existing.regId, updatedMine, pricing)
         });
-        sendMail_({
-          to: CONFIG.ADMIN_EMAIL,
-          subject: 'Discount applied: ' + v.name + ' - ' + course.title + ' [' + pricing.code + ']',
-          html: adminEmailHtml_(v, course, existing.regId, pricing)
-        });
+        sh.getRange(existing.rowIndex, COL.EMAILSTATUS).setValue(mailStatus_(emailedUpdate));
+        if (CONFIG.ADMIN_EMAIL_MODE === 'instant') {
+          sendMail_({
+            to: CONFIG.ADMIN_EMAIL,
+            subject: 'Discount applied: ' + v.name + ' - ' + course.title + ' [' + pricing.code + ']',
+            html: adminEmailHtml_(v, course, existing.regId, pricing)
+          });
+        }
         return { ok: true, duplicate: false, updated: true, regId: existing.regId,
           amount: pricing.final, free: free, status: free ? 'Paid' : 'Pending',
           discount: discount, emailed: emailedUpdate };
       }
 
+      // Already registered. If their confirmation email never went out (or was never recorded),
+      // this is the moment to send it, because they are probably back because they did not get it.
+      var resent = false;
+      if (existing.status !== 'Cancelled' && !/^Sent/.test(existing.emailStatus) &&
+          !(existing.status === 'Paid' && owed > 0)) {
+        resent = resendConfirmation_(sh, existing, rows);
+      }
       return { ok: true, duplicate: true, status: existing.status, regId: existing.regId,
-        amount: owed, free: owed === 0, discount: null, emailed: false };
+        amount: owed, free: owed === 0, discount: null, emailed: resent };
     }
 
     if (codeUsedUp_(rows, v.code)) { return { ok: false, error: usedUpMessage_(pricing) }; }
@@ -176,6 +201,7 @@ function handleRegistration_(d) {
     var status = free ? 'Paid' : 'Pending';
     sh.appendRow([now, regId, v.name, v.email, v.phone, v.country, course.title,
       pricing.final, status, free ? now : '', v.source, v.page, noteFor_(pricing)]);
+    var newRow = sh.getLastRow();
     rows = readRows_(sh);
 
     var mine = rows.filter(function (r) { return r.email === v.email; });
@@ -185,11 +211,15 @@ function handleRegistration_(d) {
       html: free ? freeEmailHtml_(v, course, regId, mine, pricing)
                  : registrationEmailHtml_(v, course, regId, mine, pricing)
     });
-    sendMail_({
-      to: CONFIG.ADMIN_EMAIL,
-      subject: 'New registration: ' + v.name + ' - ' + course.title + (pricing.code ? ' [' + pricing.code + ']' : ''),
-      html: adminEmailHtml_(v, course, regId, pricing)
-    });
+    // Write down what happened, so a missing email can always be explained.
+    sh.getRange(newRow, COL.EMAILSTATUS).setValue(mailStatus_(emailed));
+    if (CONFIG.ADMIN_EMAIL_MODE === 'instant') {
+      sendMail_({
+        to: CONFIG.ADMIN_EMAIL,
+        subject: 'New registration: ' + v.name + ' - ' + course.title + (pricing.code ? ' [' + pricing.code + ']' : ''),
+        html: adminEmailHtml_(v, course, regId, pricing)
+      });
+    }
 
     return { ok: true, duplicate: false, regId: regId, amount: pricing.final, free: free,
       status: status, discount: discount, emailed: emailed };
@@ -297,11 +327,15 @@ function onStatusEdit(e) {
   // Use the amount actually recorded for this person (it may be discounted), not the list price.
   var course = { title: base.title, when: base.when, where: base.where, joinLink: base.joinLink, amount: row[COL.AMOUNT - 1] };
 
-  sendMail_({
+  var ok = sendMail_({
     to: email,
     subject: 'Payment confirmed - ' + course.title,
     html: paymentConfirmedHtml_(String(row[COL.NAME - 1]), course, String(row[COL.ID - 1]), rows)
   });
+  // Visible in the sheet, so a missing "Payment confirmed" email can be explained.
+  sh.getRange(rowNum, COL.EMAILSTATUS).setValue(ok
+    ? 'Paid email sent ' + Utilities.formatDate(new Date(), CONFIG.TIMEZONE, 'd MMM HH:mm')
+    : 'Paid email NOT sent: ' + (LAST_MAIL_ERROR || 'unknown error') + ' (tell them on WhatsApp)');
 }
 
 function findCourseByTitle_(title) {
@@ -320,10 +354,15 @@ function sendFollowUps() {
   if (!lock.tryLock(10000)) { return; }
   try {
     var sh = getSheet_();
-    ensureReminderHeader_(sh);
+    ensureHeaders_(sh);
     var rows = readRows_(sh);
     var now = new Date();
 
+    // 1) First, confirmation emails that could not be sent earlier (daily limit, error).
+    retryUnsentConfirmations_(sh, rows, false);
+    rows = readRows_(sh);
+
+    // 2) Then the payment reminders.
     rows.forEach(function (r) {
       if (r.status !== 'Pending' || r.reminderAt) { return; }
       var amount = Number(r.amount) || 0;
@@ -346,15 +385,158 @@ function sendFollowUps() {
       });
       if (sent) { sh.getRange(r.rowIndex, COL.REMINDER).setValue(now); }
     });
+
+    // 3) Finally, the hourly digest of new sign-ups for the admin.
+    sendAdminDigest_(readRows_(sh));
   } finally {
     lock.releaseLock();
   }
 }
 
-function ensureReminderHeader_(sh) {
-  if (sh.getRange(1, COL.REMINDER).getValue() !== HEADERS[COL.REMINDER - 1]) {
-    sh.getRange(1, COL.REMINDER).setValue(HEADERS[COL.REMINDER - 1]).setFontWeight('bold');
+/* ---------- Confirmation emails that did not go out ---------- */
+
+// Re-sends the registration email for rows marked "NOT SENT" (or, with includeUnknown,
+// rows with no email status at all, which are registrations from before this was tracked).
+// Stops as soon as the daily limit is hit, and tries again next time.
+function retryUnsentConfirmations_(sh, rows, includeUnknown) {
+  var now = new Date();
+  var maxAge = CONFIG.RETRY_MAX_AGE_HOURS * 3600 * 1000;
+  var count = 0;
+  for (var i = 0; i < rows.length; i++) {
+    var r = rows[i];
+    var notSent = /^NOT SENT/.test(r.emailStatus);
+    var unknown = includeUnknown && r.emailStatus === '';
+    if (!notSent && !unknown) { continue; }
+    if (r.status === 'Cancelled') { continue; }
+    if (r.status === 'Paid' && (Number(r.amount) || 0) > 0) { continue; } // already confirmed as paid
+    var age = now - r.timestamp;
+    if (isNaN(age) || age > maxAge) { continue; }
+    var ok = resendConfirmation_(sh, r, rows);
+    if (ok) { count++; }
+    if (!ok && /limit/.test(LAST_MAIL_ERROR)) { break; } // out of emails for today: stop for now
   }
+  return count;
+}
+
+// Rebuilds and re-sends the "Registration received" / "You are registered" email from a sheet row.
+function resendConfirmation_(sh, r, rows) {
+  var course = findCourseByTitle_(r.course);
+  if (!course) { return false; }
+  var finalAmount = Number(r.amount) || 0;
+  var m = /^Code (\S+) \((\d+)% off/.exec(r.notes);
+  var pricing = { list: course.amount, final: finalAmount, percent: m ? Number(m[2]) : 0, code: m ? m[1] : '' };
+  var v = { name: r.name, email: r.email, phone: r.phone, country: r.country, source: r.source };
+  var mine = rows.filter(function (x) { return x.email === r.email; });
+  var free = finalAmount === 0;
+  var ok = sendMail_({
+    to: r.email,
+    subject: (free ? 'You are registered - ' : 'Registration received - ') + course.title,
+    html: free ? freeEmailHtml_(v, course, r.regId, mine, pricing)
+               : registrationEmailHtml_(v, course, r.regId, mine, pricing)
+  });
+  sh.getRange(r.rowIndex, COL.EMAILSTATUS).setValue(mailStatus_(ok));
+  return ok;
+}
+
+// RUN THIS ONCE BY HAND (select it in the editor and click Run) to email people who
+// registered recently but never got their confirmation. It covers registrations from
+// the last RETRY_MAX_AGE_HOURS that are Pending (or free) and have no email status or are
+// marked NOT SENT. Someone who did get the first email may receive it a second time.
+function resendMissedConfirmations() {
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(10000)) { return 'busy, try again'; }
+  try {
+    var sh = getSheet_();
+    ensureHeaders_(sh);
+    var n = retryUnsentConfirmations_(sh, readRows_(sh), true);
+    var msg = 'Resent ' + n + ' confirmation email(s).' + (LAST_MAIL_ERROR ? ' Stopped: ' + LAST_MAIL_ERROR + '.' : '');
+    console.log(msg);
+    return msg;
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/* ---------- Admin digest and email health ---------- */
+
+// One email an hour listing the sign-ups since the last digest (when ADMIN_EMAIL_MODE is 'digest').
+function sendAdminDigest_(rows) {
+  if (CONFIG.ADMIN_EMAIL_MODE !== 'digest') { return; }
+  var props = PropertiesService.getScriptProperties();
+  var now = Date.now();
+  var last = Number(props.getProperty('digest_last') || 0) || (now - 3600 * 1000);
+  var fresh = rows.filter(function (r) {
+    var t = r.timestamp.getTime();
+    return !isNaN(t) && t > last && t <= now;
+  });
+  if (!fresh.length) { props.setProperty('digest_last', String(now)); return; }
+  var ok = sendMail_({
+    to: CONFIG.ADMIN_EMAIL,
+    subject: 'New registrations: ' + fresh.length,
+    html: digestEmailHtml_(fresh, rows)
+  });
+  if (ok) { props.setProperty('digest_last', String(now)); }
+}
+
+function digestEmailHtml_(fresh, allRows) {
+  var unsent = allRows.filter(function (r) { return /^NOT SENT/.test(r.emailStatus); }).length;
+  var tr = fresh.map(function (r) {
+    var when = Utilities.formatDate(r.timestamp, CONFIG.TIMEZONE, 'd MMM HH:mm');
+    return '<tr>' +
+      '<td style="padding:6px;border-bottom:1px solid #E2E8F0;white-space:nowrap;">' + esc_(when) + '</td>' +
+      '<td style="padding:6px;border-bottom:1px solid #E2E8F0;">' + esc_(r.name) + '<br><span style="color:#475569;">' + esc_(r.email) + '</span></td>' +
+      '<td style="padding:6px;border-bottom:1px solid #E2E8F0;">' + esc_(r.course) + '</td>' +
+      '<td style="padding:6px;border-bottom:1px solid #E2E8F0;white-space:nowrap;">' + esc_(naira_(r.amount)) + '<br>' + esc_(r.status) + '</td>' +
+      '<td style="padding:6px;border-bottom:1px solid #E2E8F0;">' + esc_(r.emailStatus || 'unknown') + '</td>' +
+      '</tr>';
+  }).join('');
+  var warn = unsent
+    ? '<p style="color:#B91C1C;"><b>' + unsent + ' registration(s) have a confirmation email that has not been sent yet.</b> It will be retried automatically every hour.</p>'
+    : '';
+  var inner =
+    '<p>' + fresh.length + ' new registration(s) since the last update.</p>' + warn +
+    '<table style="width:100%;border-collapse:collapse;font-size:13px;">' +
+    '<tr style="text-align:left;color:#475569;"><th style="padding:6px;">Time</th><th style="padding:6px;">Who</th><th style="padding:6px;">Course</th><th style="padding:6px;">Fee / status</th><th style="padding:6px;">Their email</th></tr>' + tr + '</table>' +
+    '<p>When a receipt arrives, set Status to <b>Paid</b> in the sheet and they will be emailed automatically.</p>' +
+    '<p><a href="' + esc_(SpreadsheetApp.getActiveSpreadsheet().getUrl()) + '">Open the registrations sheet</a></p>';
+  return shell_('New registrations', inner);
+}
+
+// RUN BY HAND to see why emails might not be arriving: how many were sent, how many failed
+// and why, and how much of today's email allowance is left. The report appears in the
+// editor's log and is emailed to the admin.
+function checkEmailHealth() {
+  var rows = readRows_(getSheet_());
+  var quota = 'unknown';
+  try { quota = MailApp.getRemainingDailyQuota(); } catch (err) {}
+  var sent = rows.filter(function (r) { return /^(Sent|Paid email sent)/.test(r.emailStatus); }).length;
+  var failed = rows.filter(function (r) { return /not sent/i.test(r.emailStatus); });
+  var unknown = rows.filter(function (r) { return r.emailStatus === ''; }).length;
+  var reasons = {};
+  failed.forEach(function (r) { reasons[r.emailStatus] = (reasons[r.emailStatus] || 0) + 1; });
+  var lines = [
+    'Email health check',
+    'Registrations on the sheet: ' + rows.length,
+    'Emails sent to registrants: ' + sent,
+    'Emails NOT sent to registrants: ' + failed.length,
+    'No record (registered before tracking began): ' + unknown,
+    'Emails this script has sent today: ' + emailsSentToday_() + ' (our limit ' + CONFIG.MAX_EMAILS_PER_DAY + ')',
+    'Google says you can still send today: ' + quota
+  ];
+  Object.keys(reasons).forEach(function (k) { lines.push('  - ' + k + ': ' + reasons[k]); });
+  var report = lines.join('\n');
+  console.log(report);
+  try { MailApp.sendEmail({ to: CONFIG.ADMIN_EMAIL, subject: 'DataKlicks Hub email health check', body: report }); } catch (err) {}
+  return report;
+}
+
+// Makes sure the columns added after the first version have their headings.
+function ensureHeaders_(sh) {
+  [COL.REMINDER, COL.EMAILSTATUS].forEach(function (c) {
+    if (sh.getRange(1, c).getValue() !== HEADERS[c - 1]) {
+      sh.getRange(1, c).setValue(HEADERS[c - 1]).setFontWeight('bold');
+    }
+  });
 }
 
 /* ---------- Sheet helpers ---------- */
@@ -391,26 +573,39 @@ function readRows_(sh) {
       amount: r[7],
       status: String(r[8] || 'Pending'),
       paidAt: r[9],
+      phone: String(r[4] || ''),
+      country: String(r[5] || ''),
+      source: String(r[10] || ''),
       notes: String(r[12] || ''),
-      reminderAt: r[13]
+      reminderAt: r[13],
+      emailStatus: String(r[14] || '')
     };
   }).filter(function (r) { return r.email; });
 }
 
 /* ---------- Email ---------- */
 
+function emailsSentToday_() {
+  var key = 'emails_' + Utilities.formatDate(new Date(), CONFIG.TIMEZONE, 'yyyyMMdd');
+  return Number(PropertiesService.getScriptProperties().getProperty(key) || 0);
+}
+
 function sendMail_(m) {
+  LAST_MAIL_ERROR = '';
   var props = PropertiesService.getScriptProperties();
   var key = 'emails_' + Utilities.formatDate(new Date(), CONFIG.TIMEZONE, 'yyyyMMdd');
   var sent = Number(props.getProperty(key) || 0);
   // m.reserve keeps some of the daily allowance free for more important emails.
-  if (sent >= CONFIG.MAX_EMAILS_PER_DAY - (m.reserve || 0)) { return false; }
+  if (sent >= CONFIG.MAX_EMAILS_PER_DAY - (m.reserve || 0)) {
+    LAST_MAIL_ERROR = 'daily email limit reached';
+    return false;
+  }
   try {
     MailApp.sendEmail({
       to: m.to,
       subject: m.subject,
       htmlBody: m.html,
-      body: 'Please view this email in an HTML-capable mail app. Questions? WhatsApp ' + CONFIG.WHATSAPP_DISPLAY,
+      body: textFromHtml_(m.html), // a real plain-text version; spam filters dislike HTML-only mail
       name: CONFIG.FROM_NAME,
       replyTo: CONFIG.ADMIN_EMAIL
     });
@@ -418,8 +613,29 @@ function sendMail_(m) {
     return true;
   } catch (err) {
     console.error(err);
+    LAST_MAIL_ERROR = String((err && err.message) || err).slice(0, 120);
     return false;
   }
+}
+
+// The text recorded in the "Email status" column.
+function mailStatus_(ok) {
+  return ok
+    ? 'Sent ' + Utilities.formatDate(new Date(), CONFIG.TIMEZONE, 'd MMM HH:mm')
+    : 'NOT SENT: ' + (LAST_MAIL_ERROR || 'unknown error');
+}
+
+// Turns one of our HTML emails into readable plain text.
+function textFromHtml_(html) {
+  return String(html)
+    .replace(/<a [^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/gi, '$2 ($1)')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/(p|div|h[1-6]|tr)>/gi, '\n')
+    .replace(/<\/(td|th)>/gi, ' | ')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"').replace(/&#39;/g, "'")
+    .replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
 }
 
 function esc_(s) {
@@ -582,7 +798,9 @@ function setup() {
   dash.getRange('G11').setFormula('=IFERROR(QUERY(' + R + 'K2:K,"select Col1, count(Col1) where Col1 is not null group by Col1 order by count(Col1) desc label count(Col1) \'Registrations\'",0),"No registrations yet")');
   dash.setColumnWidth(1, 260);
 
-  ensureReminderHeader_(sh);
+  ensureHeaders_(sh);
+  var props = PropertiesService.getScriptProperties();
+  if (!props.getProperty('digest_last')) { props.setProperty('digest_last', String(Date.now())); }
 
   var triggers = ScriptApp.getProjectTriggers();
   var have = triggers.some(function (t) { return t.getHandlerFunction() === 'onStatusEdit'; });
