@@ -5,7 +5,7 @@ window.DK = {
   // Paste the Google Apps Script Web App URL here (see backend/README.md).
   // While this is empty, registrations are NOT saved and the pages fall back
   // to sending the details to WhatsApp.
-  endpoint: '',
+  endpoint: 'https://script.google.com/macros/s/AKfycbyp3H9XviC3yEpsMRhWCnoHtKRLlxomkgyimpxJjcFX8JJ8Zpt9mjdfbpmRhv_RGbodRw/exec',
 
   whatsapp: '2348065371750',
   whatsappDisplay: '+234 806 537 1750',
