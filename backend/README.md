@@ -52,6 +52,25 @@ Edit `CONFIG.COURSES` at the top of `Code.gs` (this is where the real price live
 save, then **Deploy → Manage deployments → pencil icon → Version: New version →
 Deploy**. Also update the displayed price in `site/js/config.js`.
 
+## Payment reminder (the follow-up email)
+
+Right after someone registers they get a "Registration received" email with the payment
+details. If they are still **Pending** after a while, an hourly timer sends them one
+reminder that repeats the amount, the bank details and the WhatsApp receipt button.
+
+- Sent **once** per registration (the time is recorded in the **Reminder sent** column).
+- Never sent to people who are Paid, Cancelled or registered free.
+- Waits `FOLLOW_UP_AFTER_HOURS` (24) by default; a course can set its own
+  `followUpAfterHours` (the class uses 12). Not sent for a registration older than
+  `FOLLOW_UP_MAX_AGE_DAYS` (14), and not sent once a course's `closesAt` time has passed
+  (the class stops at its start time).
+- Keeps `EMAIL_RESERVE_FOR_NEW_SIGNUPS` (20) of the daily email allowance free so new
+  sign-ups are always confirmed. Held-back reminders go out on a later hour.
+- The timer is installed by running **setup** (safe to run again). To stop reminders,
+  delete the `sendFollowUps` trigger under the clock icon in Apps Script.
+- Before running setup the first time, set anyone who has already paid to **Paid** and
+  test rows to **Cancelled**, or they will get a reminder within the hour.
+
 ## Discount codes
 
 Codes are listed in `CONFIG.DISCOUNTS` at the top of `Code.gs` (never on the website):

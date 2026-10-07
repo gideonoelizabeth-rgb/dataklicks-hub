@@ -20,6 +20,15 @@ var CONFIG = {
   MAX_PER_EMAIL_PER_HOUR: 5,
   MAX_EMAILS_PER_DAY: 90, // Gmail allows 100 recipients/day on a free account
 
+  // Payment reminder (the follow-up email). Sent once, to people still marked Pending,
+  // after this many hours. A course can set its own followUpAfterHours. A reminder
+  // is never sent for a course whose closesAt time has passed, or for a registration
+  // older than FOLLOW_UP_MAX_AGE_DAYS. Reminders stop when only this many of the daily
+  // emails are left, so new sign-ups can still be confirmed.
+  FOLLOW_UP_AFTER_HOURS: 24,
+  FOLLOW_UP_MAX_AGE_DAYS: 14,
+  EMAIL_RESERVE_FOR_NEW_SIGNUPS: 20,
+
   // Prices live here (not in the browser) so a visitor cannot change what they owe.
   // Add a joinLink (e.g. a Google Meet URL) when you have one; it is added to the
   // payment-confirmed email.
@@ -29,7 +38,9 @@ var CONFIG = {
       amount: 20000,
       when: 'Fri, Oct 9, 2026 at 7:00 PM WAT',
       where: 'Google Meet',
-      joinLink: ''
+      joinLink: '',
+      followUpAfterHours: 12,                 // one-day class: remind sooner
+      closesAt: '2026-10-09T19:00:00+01:00'   // no reminders once the class has started
     },
     'data-analytics-ai': {
       title: 'Data Analytics & AI',
@@ -66,9 +77,9 @@ var CONFIG = {
 };
 
 var HEADERS = ['Timestamp', 'Reg ID', 'Name', 'Email', 'Phone', 'Country', 'Course',
-  'Amount (NGN)', 'Status', 'Paid at', 'Source', 'Page', 'Notes'];
+  'Amount (NGN)', 'Status', 'Paid at', 'Source', 'Page', 'Notes', 'Reminder sent'];
 var COL = { TS: 1, ID: 2, NAME: 3, EMAIL: 4, PHONE: 5, COUNTRY: 6, COURSE: 7,
-  AMOUNT: 8, STATUS: 9, PAIDAT: 10, SOURCE: 11, PAGE: 12, NOTES: 13 };
+  AMOUNT: 8, STATUS: 9, PAIDAT: 10, SOURCE: 11, PAGE: 12, NOTES: 13, REMINDER: 14 };
 
 /* ---------- Web app entry points ---------- */
 
@@ -87,8 +98,12 @@ function doPost(e) {
 
 // Health check only. Never returns registration data.
 function doGet() {
-  return ContentService.createTextOutput(JSON.stringify({ ok: true, service: 'DataKlicks Hub registrations', features: ['discount-codes', 'code-limits'] }))
-    .setMimeType(ContentService.MimeType.JSON);
+  var timer = ScriptApp.getProjectTriggers().some(function (t) { return t.getHandlerFunction() === 'sendFollowUps'; });
+  return ContentService.createTextOutput(JSON.stringify({
+    ok: true, service: 'DataKlicks Hub registrations',
+    features: ['discount-codes', 'code-limits', 'payment-reminders'],
+    reminderTimerInstalled: timer
+  })).setMimeType(ContentService.MimeType.JSON);
 }
 
 /* ---------- Registration ---------- */
@@ -296,6 +311,52 @@ function findCourseByTitle_(title) {
   return null;
 }
 
+/* ---------- Payment reminder: the follow-up email (hourly timer) ---------- */
+
+// Runs every hour. Emails a one-time payment reminder to anyone still Pending after
+// their waiting period. Marked in the "Reminder sent" column so nobody gets it twice.
+function sendFollowUps() {
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(10000)) { return; }
+  try {
+    var sh = getSheet_();
+    ensureReminderHeader_(sh);
+    var rows = readRows_(sh);
+    var now = new Date();
+
+    rows.forEach(function (r) {
+      if (r.status !== 'Pending' || r.reminderAt) { return; }
+      var amount = Number(r.amount) || 0;
+      if (amount <= 0) { return; }
+      var course = findCourseByTitle_(r.course);
+      if (!course) { return; }
+      var ageMs = now - r.timestamp;
+      if (isNaN(ageMs)) { return; }
+      var hours = typeof course.followUpAfterHours === 'number' ? course.followUpAfterHours : CONFIG.FOLLOW_UP_AFTER_HOURS;
+      if (ageMs < hours * 3600 * 1000) { return; }
+      if (ageMs > CONFIG.FOLLOW_UP_MAX_AGE_DAYS * 24 * 3600 * 1000) { return; }
+      if (course.closesAt && now >= new Date(course.closesAt)) { return; }
+
+      var mine = rows.filter(function (x) { return x.email === r.email; });
+      var sent = sendMail_({
+        to: r.email,
+        subject: 'Reminder: complete your payment - ' + course.title,
+        html: reminderEmailHtml_(r, course, mine),
+        reserve: CONFIG.EMAIL_RESERVE_FOR_NEW_SIGNUPS
+      });
+      if (sent) { sh.getRange(r.rowIndex, COL.REMINDER).setValue(now); }
+    });
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function ensureReminderHeader_(sh) {
+  if (sh.getRange(1, COL.REMINDER).getValue() !== HEADERS[COL.REMINDER - 1]) {
+    sh.getRange(1, COL.REMINDER).setValue(HEADERS[COL.REMINDER - 1]).setFontWeight('bold');
+  }
+}
+
 /* ---------- Sheet helpers ---------- */
 
 function getSheet_() {
@@ -330,7 +391,8 @@ function readRows_(sh) {
       amount: r[7],
       status: String(r[8] || 'Pending'),
       paidAt: r[9],
-      notes: String(r[12] || '')
+      notes: String(r[12] || ''),
+      reminderAt: r[13]
     };
   }).filter(function (r) { return r.email; });
 }
@@ -341,7 +403,8 @@ function sendMail_(m) {
   var props = PropertiesService.getScriptProperties();
   var key = 'emails_' + Utilities.formatDate(new Date(), CONFIG.TIMEZONE, 'yyyyMMdd');
   var sent = Number(props.getProperty(key) || 0);
-  if (sent >= CONFIG.MAX_EMAILS_PER_DAY) { return false; }
+  // m.reserve keeps some of the daily allowance free for more important emails.
+  if (sent >= CONFIG.MAX_EMAILS_PER_DAY - (m.reserve || 0)) { return false; }
   try {
     MailApp.sendEmail({
       to: m.to,
@@ -447,6 +510,27 @@ function paymentConfirmedHtml_(name, course, regId, rows) {
   return shell_('Payment confirmed', inner);
 }
 
+// The follow-up: repeats the payment details for someone who has not paid yet.
+function reminderEmailHtml_(row, base, mine) {
+  // Use what this person actually owes (it may be discounted), not the list price.
+  var course = { title: base.title, when: base.when, where: base.where, joinLink: base.joinLink, amount: row.amount };
+  var wa = 'https://wa.me/' + CONFIG.WHATSAPP_NUMBER + '?text=' + encodeURIComponent(
+    'Hello DataKlicks Hub, I have made payment of ' + naira_(row.amount) + ' for ' + course.title + '. Reg ID: ' + row.regId + '. Name: ' + row.name + '. Attaching my receipt.');
+  var inner =
+    '<p>Hi ' + esc_(firstName_(row.name)) + ',</p>' +
+    '<p>This is a friendly reminder that your registration for <b>' + esc_(course.title) + '</b> (ID <b>' + esc_(row.regId) + '</b>) is still waiting for payment. Your place is secured once we receive it.</p>' +
+    detailsBlock_(course) +
+    '<div style="background:#F4F7FF;border-radius:8px;padding:16px;margin:16px 0;">' +
+    '<b>Please pay ' + esc_(naira_(row.amount)) + ' to:</b><br>' +
+    'Bank: ' + esc_(CONFIG.BANK.bank) + '<br>Account name: ' + esc_(CONFIG.BANK.name) + '<br>' +
+    'Account number: <b>' + esc_(CONFIG.BANK.number) + '</b></div>' +
+    '<p>Then send your payment receipt on WhatsApp so we can confirm your place:</p>' +
+    '<p><a href="' + wa + '" style="display:inline-block;background:#25D366;color:#fff;text-decoration:none;padding:12px 20px;border-radius:8px;font-weight:bold;">Send receipt on WhatsApp</a></p>' +
+    '<p style="color:#475569;font-size:13px;">Already paid and sent your receipt? Please ignore this email. We will confirm your payment shortly.</p>' +
+    summaryTable_(mine);
+  return shell_('Payment reminder', inner);
+}
+
 // For a free registration (100% discount code): no payment step, no bank details.
 function freeEmailHtml_(v, course, regId, mine, pricing) {
   var inner =
@@ -498,14 +582,21 @@ function setup() {
   dash.getRange('G11').setFormula('=IFERROR(QUERY(' + R + 'K2:K,"select Col1, count(Col1) where Col1 is not null group by Col1 order by count(Col1) desc label count(Col1) \'Registrations\'",0),"No registrations yet")');
   dash.setColumnWidth(1, 260);
 
-  var have = ScriptApp.getProjectTriggers().some(function (t) { return t.getHandlerFunction() === 'onStatusEdit'; });
+  ensureReminderHeader_(sh);
+
+  var triggers = ScriptApp.getProjectTriggers();
+  var have = triggers.some(function (t) { return t.getHandlerFunction() === 'onStatusEdit'; });
   if (!have) {
     ScriptApp.newTrigger('onStatusEdit').forSpreadsheet(ss).onEdit().create();
+  }
+  var haveTimer = triggers.some(function (t) { return t.getHandlerFunction() === 'sendFollowUps'; });
+  if (!haveTimer) {
+    ScriptApp.newTrigger('sendFollowUps').timeBased().everyHours(1).create();
   }
 
   MailApp.sendEmail({
     to: CONFIG.ADMIN_EMAIL,
     subject: 'DataKlicks Hub registrations: setup complete',
-    body: 'Setup finished. The Registrations sheet, Dashboard tab and the Paid-status email trigger are ready.'
+    body: 'Setup finished. The Registrations sheet, Dashboard tab, the Paid-status email trigger and the hourly payment-reminder timer are ready.'
   });
 }
