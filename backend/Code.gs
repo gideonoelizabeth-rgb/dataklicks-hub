@@ -228,6 +228,12 @@ function handleRegistration_(d) {
   }
 }
 
+// A course with a closesAt time (the one-day class) stops taking registrations, payment
+// reminders and re-sent confirmations once that time has passed. Its rows stay in the sheet.
+function isClosed_(course) {
+  return !!(course && course.closesAt && Date.now() >= new Date(course.closesAt).getTime());
+}
+
 // What this registration costs once any discount code is applied.
 function priceFor_(course, code) {
   var list = course.amount;
@@ -282,6 +288,9 @@ function validate_(d) {
   var courseId = str(d.course, 40);
   if (!Object.prototype.hasOwnProperty.call(CONFIG.COURSES, courseId)) {
     return { error: 'That course is not available for registration.' };
+  }
+  if (isClosed_(CONFIG.COURSES[courseId])) {
+    return { error: 'Registration for this class has closed. Please see our other courses on the website.' };
   }
 
   if (d.consent !== true) { return { error: 'Please accept the privacy notice to continue.' }; }
@@ -422,6 +431,10 @@ function retryUnsentConfirmations_(sh, rows, includeUnknown) {
 function resendConfirmation_(sh, r, rows) {
   var course = findCourseByTitle_(r.course);
   if (!course) { return false; }
+  if (isClosed_(course)) {
+    sh.getRange(r.rowIndex, COL.EMAILSTATUS).setValue('Not sent (class has ended)');
+    return false;
+  }
   var finalAmount = Number(r.amount) || 0;
   var m = /^Code (\S+) \((\d+)% off/.exec(r.notes);
   var pricing = { list: course.amount, final: finalAmount, percent: m ? Number(m[2]) : 0, code: m ? m[1] : '' };

@@ -7,21 +7,16 @@ window.DK = {
   // to sending the details to WhatsApp.
   endpoint: 'https://script.google.com/macros/s/AKfycbyp3H9XviC3yEpsMRhWCnoHtKRLlxomkgyimpxJjcFX8JJ8Zpt9mjdfbpmRhv_RGbodRw/exec',
 
-  // Shows the "Discount code" box on the class page. Keep this false until the
-  // backend has the discount-code update deployed (its health check lists
-  // "discount-codes"); the codes themselves live only in backend/Code.gs.
-  discountCodes: true,
+  // Shows the "Discount code" box on a registration form that has one. No page has
+  // a code box right now (the class that used it has ended). The codes themselves
+  // live only in backend/Code.gs.
+  discountCodes: false,
 
   whatsapp: '2348065371750',
   whatsappDisplay: '+234 806 537 1750',
   bank: { bank: 'WEMA BANK', name: 'DATAKLICKS HUB', number: '0125900780' },
 
   courses: {
-    'ai-class': {
-      title: 'Create Smarter with AI — One-Day Live Class',
-      amount: 20000,
-      meta: 'Fri, Oct 9, 2026 · 7:00 PM WAT · Google Meet'
-    },
     'data-analytics-ai': {
       title: 'Data Analytics & AI',
       amount: 400000,

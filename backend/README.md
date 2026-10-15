@@ -72,6 +72,15 @@ reminder that repeats the amount, the bank details and the WhatsApp receipt butt
 - Before running setup the first time, set anyone who has already paid to **Paid** and
   test rows to **Cancelled**, or they will get a reminder within the hour.
 
+## Closing a class
+
+A course with a `closesAt` time in `CONFIG.COURSES` (the one-day class) stops accepting
+registrations at that time, and its payment reminders and re-sent confirmations stop too.
+Nothing is deleted: its rows stay in the sheet, and setting a row to **Paid** still emails
+the "Payment confirmed" message. To reuse the entry for a new class, change its `title`,
+`when`, `amount` and `closesAt`, then deploy a new version. Add a page for it on the site
+(the old one was removed from the site once the class ended).
+
 ## Discount codes
 
 Codes are listed in `CONFIG.DISCOUNTS` at the top of `Code.gs` (never on the website):
