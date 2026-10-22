@@ -177,6 +177,15 @@
         if (slot) slot.textContent = email;
         opts.notice.hidden = false;
 
+        // A course with a WhatsApp group: the backend gives the link only once registration is
+        // complete, so it is never in the page source. Anything else is ignored.
+        if (opts.groupBox && opts.groupLink) {
+          var gl = res.saved && typeof res.groupLink === 'string' ? res.groupLink : '';
+          var glOk = /^https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]+(\?[A-Za-z0-9=&_.%\-]*)?$/.test(gl);
+          if (glOk) opts.groupLink.href = gl;
+          opts.groupBox.hidden = !glOk;
+        }
+
         opts.paymentCard.classList.add('visible');
         var regCard = form.closest('.register-card');
         // Unpin the form (it is sticky on wide screens) or it would sit on top of the payment details.

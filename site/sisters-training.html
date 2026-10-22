@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Free Digital Marketing Training for Business Owners | DataKlicks Hub</title>
-<meta name="description" content="A special gift for our sisters: DataKlicks Hub is offering 30 women business owners a free digital marketing training on October 26, 27 and 28, 2026. Learn to market online, use WhatsApp Business, create content, use AI tools and turn visibility into sales." />
+<meta name="description" content="A special gift for our sisters: DataKlicks Hub is offering 30 women business owners a free digital marketing training on October 26, 27 and 28, 2026, at 7 PM daily on Google Meet. Learn to market online, use WhatsApp Business, create content, use AI tools and turn visibility into sales." />
 <meta property="og:title" content="A Special Gift for Our Sisters: Free Digital Marketing Training" />
 <meta property="og:description" content="Free for 30 sisters who own a business. October 26, 27 and 28, 2026. Learn online marketing, WhatsApp Business, social media content and AI tools. Registration required." />
 <meta property="og:image" content="https://www.dataklickshub.com/images/logo.png" />
@@ -256,6 +256,7 @@
   .payment-card:not(.is-payable) .payment-cta + p { display: none; }
   .payment-card:not(.is-saved) .when-saved { display: none; }
   .payment-card:not(.is-done) .when-done { display: none; }
+  .payment-card:not(.is-payable) .when-payable { display: none; }
   .next-steps {
     background: rgba(0,0,0,0.15);
     border-radius: var(--radius-md);
@@ -327,6 +328,7 @@
         <div class="dates-chip">
           <div class="label">Dates</div>
           <div class="value">Mon 26, Tue 27 &amp; Wed 28 October 2026</div>
+          <div class="value" style="font-size:0.9375rem;font-weight:600;margin-top:0.25rem;">7:00 PM daily · on Google Meet</div>
         </div>
 
         <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
@@ -344,6 +346,7 @@
           <div class="gift-row"><span class="label">Training</span><span class="value">Free</span></div>
           <div class="gift-row"><span class="label">Certificate</span><span class="value">₦5,000</span></div>
           <div class="gift-row"><span class="label">Dates</span><span class="value">Oct 26, 27 &amp; 28</span></div>
+          <div class="gift-row"><span class="label">Time</span><span class="value">7 PM daily · Google Meet</span></div>
           <div class="gift-row"><span class="label">Slots</span><span class="value" data-slots-short>30 only</span></div>
         </div>
       </div>
@@ -468,7 +471,7 @@
             </div>
             <div class="form-error" id="tfError" role="alert"></div>
             <button type="submit" class="btn btn-primary btn-lg" id="tfSubmit" style="width:100%;">Register for Free →</button>
-            <p class="form-hint" id="tfHint" style="text-align:center;margin-top:0.75rem;">Free to attend. We'll email your confirmation.</p>
+            <p class="form-hint" id="tfHint" style="text-align:center;margin-top:0.75rem;">Free to attend. When you register you get the WhatsApp group link, where the Google Meet link is shared.</p>
           </form>
         </div>
 
@@ -518,10 +521,19 @@
           <div class="next-steps when-saved">
             <h4>The training</h4>
             <ol>
-              <li><strong>Mon 26, Tue 27 and Wed 28 October 2026.</strong></li>
+              <li><strong>Mon 26, Tue 27 and Wed 28 October 2026, 7:00 PM each day, on Google Meet.</strong></li>
+              <li class="when-done">Your registration is complete. Join the WhatsApp group (the button below, and the link in your email): the Google Meet link is shared there before each session.</li>
+              <li class="when-payable">Once we confirm your payment, we will email you the link to our WhatsApp group. The Google Meet link is shared there before each session.</li>
               <li>Check your email for your confirmation. If you do not see it, look in Spam or Promotions.</li>
-              <li>We will send the time and joining details by email and on WhatsApp. Save our number, <strong>+234 806 537 1750</strong>, so you do not miss any update.</li>
             </ol>
+          </div>
+
+          <!-- Shown only when registration is complete; the link comes from the registration system, not this page -->
+          <div class="when-done" id="groupBox" hidden style="margin-bottom:1.25rem;">
+            <a id="groupLink" href="#" target="_blank" rel="noopener" class="payment-cta">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.626.712.226 1.36.194 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+              Join the WhatsApp Group
+            </a>
           </div>
 
           <!-- Free-only registrations can still add the certificate -->
@@ -572,7 +584,7 @@
 
 <script src="js/main.js?v=20261010"></script>
 <script src="js/config.js?v=20261012"></script>
-<script src="js/enrol.js?v=20261014"></script>
+<script src="js/enrol.js?v=20261015"></script>
 <script>
   (function () {
     var COURSE = 'sisters-marketing';
@@ -591,6 +603,8 @@
       greeting: document.getElementById('paymentGreeting'),
       notice: document.getElementById('payNotice'),
       receiptLink: document.getElementById('waReceiptLink'),
+      groupBox: document.getElementById('groupBox'),
+      groupLink: document.getElementById('groupLink'),
       // The only payment on this page is the certificate.
       receiptMessage: function (c) {
         return 'Hello DataKlicks Hub, I have paid ₦5,000 for the certificate (free Digital Marketing Training).' +
@@ -604,8 +618,8 @@
       certPay.hidden = !on;
       submitBtn.textContent = on ? 'Register + Get Certificate (₦5,000) →' : 'Register for Free →';
       hint.textContent = on
-        ? 'Pay ₦5,000 first, then send your receipt on WhatsApp after registering.'
-        : 'Free to attend. We\u2019ll email your confirmation.';
+        ? 'Pay ₦5,000 first, then send your receipt on WhatsApp after registering. Once we confirm it, we email you the WhatsApp group link.'
+        : 'Free to attend. When you register you get the WhatsApp group link, where the Google Meet link is shared.';
     }
     cert.addEventListener('change', syncCertificate);
     try { if (new URLSearchParams(location.search).get('certificate') === '1') { cert.checked = true; } } catch (e) {}
@@ -628,6 +642,8 @@
         if (!j.features || j.features.indexOf('certificate-payments') === -1) { showOnly('soonBox'); return; }
         var s = j.slots;
         if (!s || typeof s.left !== 'number') return;
+        // The WhatsApp group link has not been added to the registration system yet.
+        if (s.ready === false) { showOnly('soonBox'); return; }
         var left = Math.max(0, s.left);
         document.querySelectorAll('[data-slots-card]').forEach(function (el) {
           el.textContent = left === 0 ? 'All slots taken' : left + ' of ' + s.capacity + ' slots left';

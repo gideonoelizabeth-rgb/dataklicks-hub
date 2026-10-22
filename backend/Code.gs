@@ -82,9 +82,14 @@ var CONFIG = {
       amount: 0,
       capacity: 30,
       certificateFee: 5000,
-      when: 'Mon 26, Tue 27 and Wed 28 October 2026',
-      where: '',
+      when: 'Mon 26, Tue 27 and Wed 28 October 2026, 7:00 PM (WAT) each day',
+      where: 'Google Meet. The Meet link is shared in the WhatsApp group.',
       joinLink: '',
+      // The WhatsApp group link is given once registration is complete (free: straight away;
+      // with the certificate: once you mark the payment Paid). It is NOT written in this file,
+      // because this file is in a public GitHub repository. Put it in Apps Script: Project
+      // Settings (gear icon) > Script properties > Add script property, name GROUP_LINK_SISTERS.
+      groupLinkProperty: 'GROUP_LINK_SISTERS',
       followUpAfterHours: 12,
       closesAt: '2026-10-29T00:00:00+01:00',
       pageUrl: 'https://www.dataklickshub.com/sisters-training'
@@ -142,7 +147,9 @@ function doGet(e) {
   if (id && Object.prototype.hasOwnProperty.call(CONFIG.COURSES, id) && typeof CONFIG.COURSES[id].capacity === 'number') {
     var c = CONFIG.COURSES[id];
     var taken = courseTaken_(readRows_(getSheet_()), c);
-    out.slots = { capacity: c.capacity, taken: taken, left: Math.max(0, c.capacity - taken), closed: isClosed_(c) };
+    out.slots = { capacity: c.capacity, taken: taken, left: Math.max(0, c.capacity - taken), closed: isClosed_(c),
+      // false while the WhatsApp group link has not been added to Script properties yet
+      ready: !c.groupLinkProperty || !!groupLinkFor_(c) };
   }
   return ContentService.createTextOutput(JSON.stringify(out)).setMimeType(ContentService.MimeType.JSON);
 }
@@ -201,7 +208,8 @@ function handleRegistration_(d) {
         });
         sh.getRange(existing.rowIndex, COL.EMAILSTATUS).setValue(mailStatus_(emailedCert));
         return { ok: true, duplicate: false, updated: true, certificate: true, regId: existing.regId,
-          amount: pricing.final, free: false, status: 'Pending', discount: null, emailed: emailedCert };
+          amount: pricing.final, free: false, status: 'Pending', discount: null, emailed: emailedCert,
+          groupLink: '' };
       }
 
       // Registered at full price, then came back with a discount code: apply the code
@@ -242,7 +250,8 @@ function handleRegistration_(d) {
         resent = resendConfirmation_(sh, existing, rows);
       }
       return { ok: true, duplicate: true, status: existing.status, regId: existing.regId,
-        amount: owed, free: owed === 0, discount: null, emailed: resent };
+        amount: owed, free: owed === 0, discount: null, emailed: resent,
+        groupLink: existing.status === 'Paid' ? groupLinkFor_(course) : '' };
     }
 
     if (codeUsedUp_(rows, v.code)) { return { ok: false, error: usedUpMessage_(pricing) }; }
@@ -279,10 +288,20 @@ function handleRegistration_(d) {
     }
 
     return { ok: true, duplicate: false, regId: regId, amount: pricing.final, free: free,
-      status: status, discount: discount, certificate: !!pricing.certificate, emailed: emailed };
+      status: status, discount: discount, certificate: !!pricing.certificate, emailed: emailed,
+      // given only once the registration is complete (not while a certificate payment is pending)
+      groupLink: status === 'Paid' ? groupLinkFor_(course) : '' };
   } finally {
     lock.releaseLock();
   }
+}
+
+// The WhatsApp group link for a course, read from Script properties (see the course's
+// groupLinkProperty). Only a real chat.whatsapp.com link is accepted. '' if not set.
+function groupLinkFor_(course) {
+  if (!course || !course.groupLinkProperty) { return ''; }
+  var v = String(PropertiesService.getScriptProperties().getProperty(course.groupLinkProperty) || '').trim();
+  return /^https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]+(\?[A-Za-z0-9=&_.%\-]*)?$/.test(v) ? v : '';
 }
 
 // How many places are taken on a course. A Cancelled registration gives its place back.
@@ -401,7 +420,7 @@ function onStatusEdit(e) {
   var base = findCourseByTitle_(courseTitle) || { title: courseTitle, when: '', where: '', joinLink: '' };
   // Use the amount actually recorded for this person (it may be discounted), not the list price.
   var course = { title: base.title, when: base.when, where: base.where, joinLink: base.joinLink, amount: row[COL.AMOUNT - 1],
-    certificate: /^Certificate/.test(String(row[COL.NOTES - 1])) };
+    groupLinkProperty: base.groupLinkProperty, certificate: /^Certificate/.test(String(row[COL.NOTES - 1])) };
 
   var ok = sendMail_({
     to: email,
@@ -606,6 +625,12 @@ function checkEmailHealth() {
     'Emails this script has sent today: ' + emailsSentToday_() + ' (our limit ' + CONFIG.MAX_EMAILS_PER_DAY + ')',
     'Google says you can still send today: ' + quota
   ];
+  Object.keys(CONFIG.COURSES).forEach(function (id) {
+    var c = CONFIG.COURSES[id];
+    if (c.groupLinkProperty) {
+      lines.push('WhatsApp group link for "' + c.title + '": ' + (groupLinkFor_(c) ? 'set' : 'NOT SET (add Script property ' + c.groupLinkProperty + ')'));
+    }
+  });
   Object.keys(reasons).forEach(function (k) { lines.push('  - ' + k + ': ' + reasons[k]); });
   var report = lines.join('\n');
   console.log(report);
@@ -783,7 +808,20 @@ function detailsBlock_(course, pricing) {
   return '<p style="margin:0 0 12px;">' + lines.join('<br>') + '</p>';
 }
 
-function joinBlock_(course) {
+// How they join. For a course with a WhatsApp group (groupLinkProperty): once registration is
+// complete they get the group link (the Meet link is shared there); until then, a note that
+// it follows payment confirmation.
+function joinBlock_(course, complete) {
+  if (course.groupLinkProperty) {
+    if (!complete) {
+      return '<p>Once we confirm your payment, we will email you the link to our WhatsApp group. The Google Meet link for each session is shared there.</p>';
+    }
+    var link = groupLinkFor_(course);
+    return link
+      ? '<p><b>Your registration is complete. Please join our WhatsApp group.</b> The Google Meet link for each session is shared there before it starts.</p>' +
+        '<p><a href="' + esc_(link) + '" style="display:inline-block;background:#25D366;color:#fff;text-decoration:none;padding:12px 20px;border-radius:8px;font-weight:bold;">Join the WhatsApp group</a></p>'
+      : '<p>Your registration is complete. We will send you the link to our WhatsApp group shortly. The Google Meet link for each session is shared there.</p>';
+  }
   return course.joinLink
     ? '<p><a href="' + esc_(course.joinLink) + '" style="display:inline-block;background:#2346D3;color:#fff;text-decoration:none;padding:12px 20px;border-radius:8px;font-weight:bold;">Join link</a></p>'
     : '<p>We will send you the time and joining details by email and on WhatsApp before the start. Please save our number (' + esc_(CONFIG.WHATSAPP_DISPLAY) + ') so you do not miss it.</p>';
@@ -813,7 +851,7 @@ function registrationEmailHtml_(v, course, regId, mine, pricing) {
       detailsBlock_(course, pricing) +
       bankBlock_('To get your certificate, pay ' + naira_(pricing.final) + ' to:') +
       '<p>Then send your payment receipt on WhatsApp so we can confirm it:</p>' + waButton_(wa, 'Send receipt on WhatsApp') +
-      joinBlock_(course) + summaryTable_(mine)
+      joinBlock_(course, false) + summaryTable_(mine)
     : '<p>Hi ' + esc_(firstName_(v.name)) + ',</p>' +
       '<p>Thank you for registering for <b>' + esc_(course.title) + '</b>. Your registration ID is <b>' + esc_(regId) + '</b>.</p>' +
       detailsBlock_(course, pricing) +
@@ -831,7 +869,7 @@ function paymentConfirmedHtml_(name, course, regId, rows) {
     '<p>Hi ' + esc_(firstName_(name)) + ',</p>' +
     '<p>' + what + '</p>' +
     detailsBlock_(course, course.certificate ? { certificate: true, final: Number(course.amount) } : undefined) +
-    joinBlock_(course) + summaryTable_(rows);
+    joinBlock_(course, true) + summaryTable_(rows);
   return shell_('Payment confirmed', inner);
 }
 
@@ -839,7 +877,8 @@ function paymentConfirmedHtml_(name, course, regId, rows) {
 function reminderEmailHtml_(row, base, mine) {
   // Use what this person actually owes (it may be discounted), not the list price.
   var cert = /^Certificate/.test(row.notes);
-  var course = { title: base.title, when: base.when, where: base.where, joinLink: base.joinLink, amount: row.amount };
+  var course = { title: base.title, when: base.when, where: base.where, joinLink: base.joinLink, amount: row.amount,
+    groupLinkProperty: base.groupLinkProperty };
   var wa = 'https://wa.me/' + CONFIG.WHATSAPP_NUMBER + '?text=' + encodeURIComponent(cert
     ? 'Hello DataKlicks Hub, I have paid ' + naira_(row.amount) + ' for the certificate (' + course.title + '). Reg ID: ' + row.regId + '. Name: ' + row.name + '. Attaching my receipt.'
     : 'Hello DataKlicks Hub, I have made payment of ' + naira_(row.amount) + ' for ' + course.title + '. Reg ID: ' + row.regId + '. Name: ' + row.name + '. Attaching my receipt.');
@@ -851,6 +890,7 @@ function reminderEmailHtml_(row, base, mine) {
     detailsBlock_(course, cert ? { certificate: true, final: Number(row.amount) } : undefined) +
     bankBlock_((cert ? 'To get your certificate, pay ' : 'Please pay ') + naira_(row.amount) + ' to:') +
     '<p>Then send your payment receipt on WhatsApp so we can confirm it:</p>' + waButton_(wa, 'Send receipt on WhatsApp') +
+    (course.groupLinkProperty ? joinBlock_(course, false) : '') +
     '<p style="color:#475569;font-size:13px;">Already paid and sent your receipt? Please ignore this email. We will confirm your payment shortly.</p>' +
     summaryTable_(mine);
   return shell_('Payment reminder', inner);
@@ -864,7 +904,7 @@ function freeEmailHtml_(v, course, regId, mine, pricing) {
   var inner =
     '<p>Hi ' + esc_(firstName_(v.name)) + ',</p>' +
     '<p>You are registered for <b>' + esc_(course.title) + '</b>. ' + why + ' Your registration ID is <b>' + esc_(regId) + '</b>.</p>' +
-    detailsBlock_(course, pricing) + joinBlock_(course) +
+    detailsBlock_(course, pricing) + joinBlock_(course, true) +
     certificateUpsell_(course) + summaryTable_(mine);
   return shell_('You are registered', inner);
 }

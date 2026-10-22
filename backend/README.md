@@ -105,10 +105,20 @@ website, and it is linked from a banner at the top of the home, courses, about, 
   `?course=sisters-marketing`. It only gets counts, never anyone's details. If the web app has not
   been updated to the version that handles certificate payments (its health check lists
   `certificate-payments`), the page shows "Registration is opening shortly" instead of a form.
-- The training is on 26, 27 and 28 October 2026. The time and venue or link are not known yet, so the
-  emails say they will be sent by email and on WhatsApp. When they are fixed, fill in `where` and
-  `joinLink` for this course and deploy a new version. `closesAt` is the end of 28 October: after it,
+- The training is on 26, 27 and 28 October 2026 at 7:00 PM (WAT) each day, on Google Meet. The Meet
+  link is shared in the WhatsApp group, not by email. `closesAt` is the end of 28 October: after it,
   new registrations, reminders and re-sent emails stop, and the page shows "Registration has closed".
+- **WhatsApp group link (one-time setup).** The link is given once registration is complete: straight
+  away for a free-only registration (on the page and in the email), and for a certificate registration
+  only after you set the row to **Paid** (in the "Payment confirmed" email). It is deliberately NOT written
+  in `Code.gs`, because that file is in a public GitHub repository and anyone could read it. Add it in
+  Apps Script: **Project Settings** (gear icon, left) -> **Script properties** -> **Add script property**
+  -> name `GROUP_LINK_SISTERS`, value the `https://chat.whatsapp.com/...` link -> **Save script properties**.
+  Until it is set, the registration page shows "Registration is opening shortly". `checkEmailHealth` also
+  tells you whether it is set.
+- Someone who ticked the certificate but never pays will not get the group link. If that happens, either
+  set her row to **Paid** once she has paid, or, if she decides she does not want the certificate, set her
+  row to **Cancelled** and ask her to register again without it (she then gets the group link straight away).
 
 ## Discount codes
 
