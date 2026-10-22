@@ -83,21 +83,32 @@ the "Payment confirmed" message. To reuse the entry for a new class, change its 
 
 ## Free training with limited slots (sisters' digital marketing training)
 
-`CONFIG.COURSES['sisters-marketing']` is a free course (`amount: 0`) with `capacity: 30`.
-Its registration page is `/sisters-training` on the website.
+`CONFIG.COURSES['sisters-marketing']` is a free course (`amount: 0`) with `capacity: 30` and an
+optional certificate (`certificateFee: 5000`). Its registration page is `/sisters-training` on the
+website, and it is linked from a banner at the top of the home, courses, about, blog and contact pages.
 
-- Each registration is saved with Status **Paid** (meaning confirmed, no fee) and the person
-  gets a "You are registered" email. The email lists the optional certificate (`certificateFee`,
-  NGN 5,000) with the bank details and a WhatsApp button for the receipt. Certificate payments
-  are handled on WhatsApp and are not tracked in the sheet.
-- The 31st person is told all slots are taken and to join the waiting list on WhatsApp.
-  Setting a row to **Cancelled** gives its place back. Anyone already registered is never turned away.
+- **Free only:** the registration is saved with Amount 0 and Status **Paid** (meaning confirmed,
+  no fee). The person gets a "You are registered" email with the dates (`when`) and a link to add the
+  certificate later.
+- **With the certificate** (she ticks "Yes, I want the certificate"): the registration is saved with
+  Amount 5000, Status **Pending** and Notes `Certificate NGN 5000`. The page and the email show the
+  WEMA bank details and a WhatsApp button for the receipt. When the receipt arrives, set Status to
+  **Paid** and she is emailed a "Payment confirmed" message (the Paid at column fills in). If she has
+  not paid after 12 hours she gets one reminder. These payments appear in the sheet's Amount, Status
+  and Paid at columns and in the Dashboard's revenue totals.
+- Someone who registered free and later wants the certificate uses the "Add it here" link (the form
+  opens with the box ticked) and registers again with the same email. Her row changes to Pending 5000.
+- Both kinds of registration hold a slot. The 31st person is told all slots are taken and to join the
+  waiting list on WhatsApp. Setting a row to **Cancelled** gives its place back. Anyone already
+  registered is never turned away.
 - The page shows the live count ("12 of 30 slots left") by asking the web app for
   `?course=sisters-marketing`. It only gets counts, never anyone's details. If the web app has not
-  been updated to this version, the page shows "Registration is opening shortly" instead of a form.
-- The date is not known yet, so the email says it will be sent later. When it is fixed, fill in
-  `when`, `where`, `joinLink` and `closesAt` (the start time) for this course, then deploy a new
-  version. After `closesAt`, new registrations are refused.
+  been updated to the version that handles certificate payments (its health check lists
+  `certificate-payments`), the page shows "Registration is opening shortly" instead of a form.
+- The training is on 26, 27 and 28 October 2026. The time and venue or link are not known yet, so the
+  emails say they will be sent by email and on WhatsApp. When they are fixed, fill in `where` and
+  `joinLink` for this course and deploy a new version. `closesAt` is the end of 28 October: after it,
+  new registrations, reminders and re-sent emails stop, and the page shows "Registration has closed".
 
 ## Discount codes
 

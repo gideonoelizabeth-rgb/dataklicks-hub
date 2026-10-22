@@ -22,7 +22,8 @@ window.DK = {
     'sisters-marketing': {
       title: 'Free Digital Marketing Training for Business Owners',
       amount: 0,
-      meta: 'Free · 30 slots',
+      certificateFee: 5000,
+      meta: 'Free · Oct 26, 27 & 28, 2026 · 30 slots',
       hidden: true
     },
     'data-analytics-ai': {

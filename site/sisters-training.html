@@ -4,9 +4,9 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Free Digital Marketing Training for Business Owners | DataKlicks Hub</title>
-<meta name="description" content="A special gift for our sisters: DataKlicks Hub is offering 30 women business owners a free digital marketing training. Learn to market online, use WhatsApp Business, create content, use AI tools and turn visibility into sales." />
+<meta name="description" content="A special gift for our sisters: DataKlicks Hub is offering 30 women business owners a free digital marketing training on October 26, 27 and 28, 2026. Learn to market online, use WhatsApp Business, create content, use AI tools and turn visibility into sales." />
 <meta property="og:title" content="A Special Gift for Our Sisters: Free Digital Marketing Training" />
-<meta property="og:description" content="Free for 30 sisters who own a business. Learn online marketing, WhatsApp Business, social media content and AI tools. Registration required." />
+<meta property="og:description" content="Free for 30 sisters who own a business. October 26, 27 and 28, 2026. Learn online marketing, WhatsApp Business, social media content and AI tools. Registration required." />
 <meta property="og:image" content="https://www.dataklickshub.com/images/logo.png" />
 <meta property="og:type" content="website" />
 <link rel="icon" type="image/png" href="images/logo.png">
@@ -201,7 +201,60 @@
   }
   .state-box a { color: inherit; font-weight: 700; text-decoration: underline; }
 
-  /* After registering: confirmation, what happens next, and the optional certificate */
+  .dates-chip {
+    display: inline-block;
+    background: rgba(255,255,255,0.14);
+    border: 1px solid rgba(255,255,255,0.22);
+    border-radius: var(--radius-md);
+    padding: 0.875rem 1.125rem;
+    margin-bottom: 1.5rem;
+  }
+  .dates-chip .label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.65);
+    margin-bottom: 0.25rem;
+  }
+  .dates-chip .value { font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 1.0625rem; color: var(--white); }
+
+  /* Certificate choice inside the form */
+  .cert-option {
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    padding: 1rem 1.125rem;
+    margin-top: 1rem;
+    background: var(--soft-blue-white);
+  }
+  .cert-option .consent-row { margin: 0; }
+  .cert-option .consent-row label { color: var(--midnight-navy); font-weight: 600; font-size: 0.9375rem; }
+  .cert-option .cert-note { margin: 0.5rem 0 0 1.5rem; font-size: 0.8125rem; color: var(--gray-600); }
+  .cert-pay { margin: 0.875rem 0 0; padding-top: 0.875rem; border-top: 1px dashed var(--gray-300, #CBD5E1); font-size: 0.875rem; color: var(--gray-700); }
+  .cert-pay .cp-row { display: flex; justify-content: space-between; gap: 1rem; padding: 0.25rem 0; }
+  .cert-pay .cp-row span:first-child { color: var(--gray-600); }
+  .cert-pay .cp-row strong { color: var(--midnight-navy); text-align: right; }
+  .cert-pay .copy-btn {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: 6px;
+    padding: 0.125rem 0.5rem;
+    margin-left: 0.5rem;
+    font-size: 0.75rem;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .cert-pay .copy-btn.copied { background: #10b981; color: #fff; border-color: #10b981; }
+  .cert-pay p { margin: 0.5rem 0 0; }
+
+  /* After registering: only show what applies. Payment details appear only when there is a
+     certificate to pay for; the "what happens next" box once the registration is saved. */
+  .payment-card:not(.is-payable) .payment-lead,
+  .payment-card:not(.is-payable) .payment-details,
+  .payment-card:not(.is-payable) .payment-steps,
+  .payment-card:not(.is-payable) .payment-cta,
+  .payment-card:not(.is-payable) .payment-cta + p { display: none; }
+  .payment-card:not(.is-saved) .when-saved { display: none; }
   .payment-card:not(.is-done) .when-done { display: none; }
   .next-steps {
     background: rgba(0,0,0,0.15);
@@ -214,15 +267,15 @@
   .next-steps h4 { color: var(--white); margin-bottom: 0.75rem; font-size: 0.9375rem; }
   .next-steps ol { padding-left: 1.25rem; }
   .next-steps li { margin-bottom: 0.5rem; }
-  .cert-box {
+  .upsell-box {
     background: rgba(255,255,255,0.08);
     border: 1px solid rgba(255,255,255,0.15);
     border-radius: var(--radius-md);
     padding: 1.25rem 1.5rem;
+    font-size: 0.9375rem;
+    color: rgba(255,255,255,0.9);
   }
-  .cert-box h4 { color: var(--white); margin-bottom: 0.375rem; font-size: 1rem; }
-  .cert-box > p { color: rgba(255,255,255,0.85); font-size: 0.9375rem; margin-bottom: 0.75rem; }
-  .cert-box .payment-row:first-of-type { padding-top: 0.5rem; }
+  .upsell-box strong { color: var(--white); }
 
   .powered-by {
     text-align: center;
@@ -271,6 +324,11 @@
         <h1>Free Digital Marketing Training for Business Owners.</h1>
         <p class="lead">In the spirit of the REMOULDED Sisters Conference 2026, DataKlicks Hub is offering 30 sisters a free, practical training to attract more customers, improve their online visibility and increase sales.</p>
 
+        <div class="dates-chip">
+          <div class="label">Dates</div>
+          <div class="value">Mon 26, Tue 27 &amp; Wed 28 October 2026</div>
+        </div>
+
         <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
           <a href="#register" class="btn" style="background:var(--white);color:var(--royal-blue);">Reserve My Free Slot →</a>
           <a href="https://wa.me/2348065371750?text=Hello%20DataKlicks%20Hub%2C%20I%20have%20a%20question%20about%20the%20free%20Digital%20Marketing%20Training." target="_blank" rel="noopener" class="btn btn-outline-light">Ask a Question</a>
@@ -285,6 +343,7 @@
         <div class="gift-rows">
           <div class="gift-row"><span class="label">Training</span><span class="value">Free</span></div>
           <div class="gift-row"><span class="label">Certificate</span><span class="value">₦5,000</span></div>
+          <div class="gift-row"><span class="label">Dates</span><span class="value">Oct 26, 27 &amp; 28</span></div>
           <div class="gift-row"><span class="label">Slots</span><span class="value" data-slots-short>30 only</span></div>
         </div>
       </div>
@@ -356,6 +415,10 @@
             <strong>All 30 slots have been taken.</strong> Message us on WhatsApp to join the waiting list:
             <a href="https://wa.me/2348065371750?text=Hello%20DataKlicks%20Hub%2C%20please%20add%20me%20to%20the%20waiting%20list%20for%20the%20free%20Digital%20Marketing%20Training." target="_blank" rel="noopener">+234 806 537 1750</a>.
           </div>
+          <div class="state-box" id="closedBox" hidden>
+            <strong>Registration for this training has closed.</strong> See our other courses on the <a href="courses.html">Courses page</a>, or message us on WhatsApp:
+            <a href="https://wa.me/2348065371750" target="_blank" rel="noopener">+234 806 537 1750</a>.
+          </div>
           <div class="state-box" id="soonBox" hidden>
             <strong>Registration is opening shortly.</strong> Please check back in a little while, or message us on WhatsApp:
             <a href="https://wa.me/2348065371750?text=Hello%20DataKlicks%20Hub%2C%20I%20would%20like%20to%20register%20for%20the%20free%20Digital%20Marketing%20Training." target="_blank" rel="noopener">+234 806 537 1750</a>.
@@ -381,6 +444,20 @@
                 <input type="tel" id="tf-phone" name="phone" required placeholder="+234 806 537 1750" autocomplete="tel" />
               </div>
             </div>
+            <div class="cert-option">
+              <div class="consent-row">
+                <input type="checkbox" id="tf-cert" name="certificate" />
+                <label for="tf-cert">Yes, I want the certificate (₦5,000)</label>
+              </div>
+              <p class="cert-note">The training is free. The certificate is optional and paid up front.</p>
+              <div class="cert-pay" id="certPay" hidden>
+                <div class="cp-row"><span>Bank</span><strong>WEMA BANK</strong></div>
+                <div class="cp-row"><span>Account name</span><strong>DATAKLICKS HUB</strong></div>
+                <div class="cp-row"><span>Account number</span><strong>0125900780 <button type="button" class="copy-btn" data-copy="0125900780">Copy</button></strong></div>
+                <div class="cp-row"><span>Amount</span><strong>₦5,000</strong></div>
+                <p>Pay first, then register. After you register, send your receipt to us on WhatsApp so we can confirm it.</p>
+              </div>
+            </div>
             <div class="hp-field" aria-hidden="true">
               <label for="tf-website">Leave this field empty</label>
               <input type="text" id="tf-website" name="website" tabindex="-1" autocomplete="off" />
@@ -390,8 +467,8 @@
               <label for="tf-consent">I agree to DataKlicks Hub saving my details to process this registration and contact me about the training. <a href="privacy.html" target="_blank" rel="noopener">Privacy notice</a></label>
             </div>
             <div class="form-error" id="tfError" role="alert"></div>
-            <button type="submit" class="btn btn-primary btn-lg" style="width:100%;">Register for Free →</button>
-            <p class="form-hint" style="text-align:center;margin-top:0.75rem;">Free to attend. We'll email your confirmation.</p>
+            <button type="submit" class="btn btn-primary btn-lg" id="tfSubmit" style="width:100%;">Register for Free →</button>
+            <p class="form-hint" id="tfHint" style="text-align:center;margin-top:0.75rem;">Free to attend. We'll email your confirmation.</p>
           </form>
         </div>
 
@@ -400,18 +477,9 @@
           <h2 id="paymentGreeting">You are in!</h2>
           <div class="pay-notice" id="payNotice" hidden></div>
 
-          <div class="next-steps when-done">
-            <h4>What happens next</h4>
-            <ol>
-              <li>Check your email for your confirmation. If you do not see it, look in Spam or Promotions.</li>
-              <li>We will send you the date, time and joining details by email and on WhatsApp.</li>
-              <li>Save our number, <strong>+234 806 537 1750</strong>, so you do not miss any update.</li>
-            </ol>
-          </div>
-
-          <div class="cert-box when-done">
-            <h4>Want a certificate? ₦5,000</h4>
-            <p>The training is free. If you would like a certificate, pay to the account below and send your receipt on WhatsApp.</p>
+          <!-- Only when she chose the certificate: the payment details, paid up front -->
+          <p class="payment-lead">Your slot is reserved. To get your certificate, transfer <strong id="payLeadAmount">₦5,000</strong> to the account below, then send your receipt to us on WhatsApp.</p>
+          <div class="payment-details">
             <div class="payment-row">
               <span class="label">Bank</span>
               <span class="value">WEMA BANK</span>
@@ -429,12 +497,36 @@
             </div>
             <div class="payment-row">
               <span class="label">Amount</span>
-              <span class="value amount">₦5,000</span>
+              <span class="value amount" id="payAmount">₦5,000</span>
             </div>
-            <a id="waReceiptLink" href="https://wa.me/2348065371750?text=Hello%20DataKlicks%20Hub%2C%20I%20would%20like%20the%20certificate%20for%20the%20free%20Digital%20Marketing%20Training." target="_blank" rel="noopener" class="payment-cta" style="margin-top:1rem;">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.626.712.226 1.36.194 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
-              Send Certificate Receipt on WhatsApp
-            </a>
+          </div>
+          <div class="payment-steps">
+            <h4>To get your certificate</h4>
+            <ol>
+              <li>Transfer <strong>₦5,000</strong> to the account above.</li>
+              <li>Screenshot your receipt.</li>
+              <li>Send the receipt to us on WhatsApp: tap the button below.</li>
+              <li>We will confirm your payment by email.</li>
+            </ol>
+          </div>
+          <a id="waReceiptLink" href="https://wa.me/2348065371750?text=Hello%20DataKlicks%20Hub%2C%20I%20have%20paid%20for%20the%20certificate%20for%20the%20free%20Digital%20Marketing%20Training.%20Attaching%20my%20receipt." target="_blank" rel="noopener" class="payment-cta">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.626.712.226 1.36.194 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+            Send Receipt on WhatsApp
+          </a>
+          <p style="text-align:center;margin:0.875rem 0 1.25rem;font-size:0.8125rem;color:rgba(255,255,255,0.7);">Number: +234 806 537 1750</p>
+
+          <div class="next-steps when-saved">
+            <h4>The training</h4>
+            <ol>
+              <li><strong>Mon 26, Tue 27 and Wed 28 October 2026.</strong></li>
+              <li>Check your email for your confirmation. If you do not see it, look in Spam or Promotions.</li>
+              <li>We will send the time and joining details by email and on WhatsApp. Save our number, <strong>+234 806 537 1750</strong>, so you do not miss any update.</li>
+            </ol>
+          </div>
+
+          <!-- Free-only registrations can still add the certificate -->
+          <div class="upsell-box when-done">
+            <strong>Want the certificate (₦5,000)?</strong> <a href="sisters-training.html?certificate=1#register" style="color:#7DD3FC;text-decoration:underline;">Add it here</a>. The form opens with the certificate ticked: use the same email and we will show you the payment details.
           </div>
         </div>
       </div>
@@ -479,12 +571,16 @@
 </a>
 
 <script src="js/main.js?v=20261010"></script>
-<script src="js/config.js?v=20261011"></script>
-<script src="js/enrol.js?v=20261012"></script>
+<script src="js/config.js?v=20261012"></script>
+<script src="js/enrol.js?v=20261014"></script>
 <script>
   (function () {
     var COURSE = 'sisters-marketing';
     var form = document.getElementById('trainingForm');
+    var cert = document.getElementById('tf-cert');
+    var certPay = document.getElementById('certPay');
+    var submitBtn = document.getElementById('tfSubmit');
+    var hint = document.getElementById('tfHint');
 
     DKEnrol.wireCopy();
     DKEnrol.wire({
@@ -495,30 +591,41 @@
       greeting: document.getElementById('paymentGreeting'),
       notice: document.getElementById('payNotice'),
       receiptLink: document.getElementById('waReceiptLink'),
-      // The only payment on this page is the optional certificate.
+      // The only payment on this page is the certificate.
       receiptMessage: function (c) {
-        return 'Hello DataKlicks Hub, I would like the certificate (₦5,000) for the free Digital Marketing Training.' +
+        return 'Hello DataKlicks Hub, I have paid ₦5,000 for the certificate (free Digital Marketing Training).' +
           (c.regId ? ' Reg ID: ' + c.regId + '.' : '') + ' Name: ' + c.name + '. Attaching my receipt.';
       }
     });
 
-    // Show how many slots are really left, and close the form when they are gone.
-    // If the registration system has not been updated yet, show "opening shortly" instead
-    // of letting people hit an error.
+    // The certificate choice: show the bank details up front and say what the button does.
+    function syncCertificate() {
+      var on = cert.checked;
+      certPay.hidden = !on;
+      submitBtn.textContent = on ? 'Register + Get Certificate (₦5,000) →' : 'Register for Free →';
+      hint.textContent = on
+        ? 'Pay ₦5,000 first, then send your receipt on WhatsApp after registering.'
+        : 'Free to attend. We\u2019ll email your confirmation.';
+    }
+    cert.addEventListener('change', syncCertificate);
+    try { if (new URLSearchParams(location.search).get('certificate') === '1') { cert.checked = true; } } catch (e) {}
+    syncCertificate();
+
+    // Show how many slots are really left, and close the form when they are gone or the
+    // training is over. If the registration system has not been updated to the version that
+    // handles certificate payments, show "opening shortly" instead of a form that would
+    // record the wrong thing.
     var DK = window.DK;
     if (!DK.endpoint || typeof fetch === 'undefined') return;
     var ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
     var timer = ctrl ? setTimeout(function () { ctrl.abort(); }, 10000) : null;
+    function showOnly(boxId) { form.hidden = true; document.getElementById(boxId).hidden = false; }
     fetch(DK.endpoint + '?course=' + COURSE, { signal: ctrl ? ctrl.signal : undefined })
       .then(function (r) { return r.json(); })
       .then(function (j) {
         if (timer) clearTimeout(timer);
         if (!j || !j.ok) return;
-        if (!j.features || j.features.indexOf('slot-limits') === -1) {
-          form.hidden = true;
-          document.getElementById('soonBox').hidden = false;
-          return;
-        }
+        if (!j.features || j.features.indexOf('certificate-payments') === -1) { showOnly('soonBox'); return; }
         var s = j.slots;
         if (!s || typeof s.left !== 'number') return;
         var left = Math.max(0, s.left);
@@ -528,10 +635,8 @@
         document.querySelectorAll('[data-slots-short]').forEach(function (el) {
           el.textContent = left === 0 ? 'Full' : left + ' left';
         });
-        if (left === 0) {
-          form.hidden = true;
-          document.getElementById('fullBox').hidden = false;
-        }
+        if (s.closed) { showOnly('closedBox'); }
+        else if (left === 0) { showOnly('fullBox'); }
       })
       .catch(function () { if (timer) clearTimeout(timer); });
   })();

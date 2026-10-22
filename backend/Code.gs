@@ -71,19 +71,23 @@ var CONFIG = {
       where: 'Hybrid',
       joinLink: ''
     },
-    // Free training for 30 sisters (REMOULDED Sisters Conference 2026). amount 0 = free, so
-    // registrations are confirmed straight away. capacity stops the 31st registration.
-    // certificateFee is the optional certificate, paid by bank transfer after registering.
-    // When the date is fixed, fill in `when`, `where`, `joinLink`, and `closesAt` (the start
-    // time) here, then deploy a new version.
+    // Free training for 30 sisters (REMOULDED Sisters Conference 2026). The training is free
+    // (amount 0). certificateFee is the optional certificate: a sister who ticks "I want the
+    // certificate" is registered at that amount as Pending until you set her row to Paid.
+    // capacity stops the 31st registration. closesAt is when registration, payment reminders
+    // and re-sent emails stop (here: the end of the last training day). When the time and
+    // venue or link are fixed, fill in `where` and `joinLink`, then deploy a new version.
     'sisters-marketing': {
       title: 'Free Digital Marketing Training for Business Owners',
       amount: 0,
       capacity: 30,
       certificateFee: 5000,
-      when: '',
+      when: 'Mon 26, Tue 27 and Wed 28 October 2026',
       where: '',
-      joinLink: ''
+      joinLink: '',
+      followUpAfterHours: 12,
+      closesAt: '2026-10-29T00:00:00+01:00',
+      pageUrl: 'https://www.dataklickshub.com/sisters-training'
     }
   },
 
@@ -129,7 +133,7 @@ function doGet(e) {
   try { quota = MailApp.getRemainingDailyQuota(); } catch (err) { quota = null; }
   var out = {
     ok: true, service: 'DataKlicks Hub registrations',
-    features: ['discount-codes', 'code-limits', 'payment-reminders', 'email-status', 'slot-limits'],
+    features: ['discount-codes', 'code-limits', 'payment-reminders', 'email-status', 'slot-limits', 'certificate-payments'],
     reminderTimerInstalled: timer,
     emailQuotaRemaining: quota,
     emailsSentToday: emailsSentToday_()
@@ -138,7 +142,7 @@ function doGet(e) {
   if (id && Object.prototype.hasOwnProperty.call(CONFIG.COURSES, id) && typeof CONFIG.COURSES[id].capacity === 'number') {
     var c = CONFIG.COURSES[id];
     var taken = courseTaken_(readRows_(getSheet_()), c);
-    out.slots = { capacity: c.capacity, taken: taken, left: Math.max(0, c.capacity - taken) };
+    out.slots = { capacity: c.capacity, taken: taken, left: Math.max(0, c.capacity - taken), closed: isClosed_(c) };
   }
   return ContentService.createTextOutput(JSON.stringify(out)).setMimeType(ContentService.MimeType.JSON);
 }
@@ -152,6 +156,12 @@ function handleRegistration_(d) {
   if (v.error) { return { ok: false, error: v.error }; }
   var course = CONFIG.COURSES[v.courseId];
   var pricing = priceFor_(course, v.code);
+  // A free course with an optional certificate: ticking the box makes the registration a
+  // certificate payment (tracked as Pending until it is marked Paid in the sheet).
+  var wantsCert = !!course.certificateFee && v.certificate === true;
+  if (wantsCert) {
+    pricing = { list: course.certificateFee, final: course.certificateFee, percent: 0, code: '', certificate: true };
+  }
   var free = pricing.final === 0;
   var discount = pricing.code ? { code: pricing.code, percent: pricing.percent, list: pricing.list } : null;
 
@@ -176,9 +186,27 @@ function handleRegistration_(d) {
     if (existing) {
       var owed = Number(existing.amount) || 0;
 
+      // Registered for the free training earlier, now ticking the certificate: turn that
+      // registration into a certificate payment (Pending) and send the payment details.
+      if (wantsCert && existing.status === 'Paid' && owed === 0) {
+        sh.getRange(existing.rowIndex, COL.AMOUNT).setValue(pricing.final);
+        sh.getRange(existing.rowIndex, COL.STATUS).setValue('Pending');
+        sh.getRange(existing.rowIndex, COL.PAIDAT).setValue('');
+        sh.getRange(existing.rowIndex, COL.NOTES).setValue(noteFor_(pricing));
+        var certMine = readRows_(sh).filter(function (r) { return r.email === v.email; });
+        var emailedCert = sendMail_({
+          to: v.email,
+          subject: 'Certificate payment details - ' + course.title,
+          html: registrationEmailHtml_(v, course, existing.regId, certMine, pricing)
+        });
+        sh.getRange(existing.rowIndex, COL.EMAILSTATUS).setValue(mailStatus_(emailedCert));
+        return { ok: true, duplicate: false, updated: true, certificate: true, regId: existing.regId,
+          amount: pricing.final, free: false, status: 'Pending', discount: null, emailed: emailedCert };
+      }
+
       // Registered at full price, then came back with a discount code: apply the code
       // to that registration instead of calling it a duplicate.
-      if (existing.status === 'Pending' && pricing.final < owed) {
+      if (existing.status === 'Pending' && pricing.code && pricing.final < owed) {
         if (codeUsedUp_(rows, v.code)) { return { ok: false, error: usedUpMessage_(pricing) }; }
         sh.getRange(existing.rowIndex, COL.AMOUNT).setValue(pricing.final);
         sh.getRange(existing.rowIndex, COL.NOTES).setValue(noteFor_(pricing));
@@ -251,7 +279,7 @@ function handleRegistration_(d) {
     }
 
     return { ok: true, duplicate: false, regId: regId, amount: pricing.final, free: free,
-      status: status, discount: discount, emailed: emailed };
+      status: status, discount: discount, certificate: !!pricing.certificate, emailed: emailed };
   } finally {
     lock.releaseLock();
   }
@@ -276,7 +304,10 @@ function priceFor_(course, code) {
   return { list: list, final: Math.max(0, Math.round(list * (100 - pct) / 100)), percent: pct, code: code.toUpperCase() };
 }
 
+// What goes in the sheet's Notes column. "Certificate" marks a certificate payment, and
+// resendConfirmation_ and the reminder read it back.
 function noteFor_(pricing) {
+  if (pricing.certificate) { return 'Certificate NGN ' + pricing.final; }
   return pricing.code
     ? 'Code ' + pricing.code + ' (' + pricing.percent + '% off, list NGN ' + pricing.list + ')'
     : '';
@@ -324,7 +355,7 @@ function validate_(d) {
     return { error: 'That course is not available for registration.' };
   }
   if (isClosed_(CONFIG.COURSES[courseId])) {
-    return { error: 'Registration for this class has closed. Please see our other courses on the website.' };
+    return { error: 'Registration for this training has closed. Please see our other courses on the website.' };
   }
 
   if (d.consent !== true) { return { error: 'Please accept the privacy notice to continue.' }; }
@@ -339,6 +370,7 @@ function validate_(d) {
 
   return {
     name: name, email: email, phone: phone, country: country, courseId: courseId, code: code,
+    certificate: d.certificate === true,
     source: clean_(str(d.source, 200)), page: clean_(str(d.page, 120))
   };
 }
@@ -368,7 +400,8 @@ function onStatusEdit(e) {
   var courseTitle = row[COL.COURSE - 1];
   var base = findCourseByTitle_(courseTitle) || { title: courseTitle, when: '', where: '', joinLink: '' };
   // Use the amount actually recorded for this person (it may be discounted), not the list price.
-  var course = { title: base.title, when: base.when, where: base.where, joinLink: base.joinLink, amount: row[COL.AMOUNT - 1] };
+  var course = { title: base.title, when: base.when, where: base.where, joinLink: base.joinLink, amount: row[COL.AMOUNT - 1],
+    certificate: /^Certificate/.test(String(row[COL.NOTES - 1])) };
 
   var ok = sendMail_({
     to: email,
@@ -422,7 +455,7 @@ function sendFollowUps() {
       var mine = rows.filter(function (x) { return x.email === r.email; });
       var sent = sendMail_({
         to: r.email,
-        subject: 'Reminder: complete your payment - ' + course.title,
+        subject: (/^Certificate/.test(r.notes) ? 'Reminder: your certificate payment - ' : 'Reminder: complete your payment - ') + course.title,
         html: reminderEmailHtml_(r, course, mine),
         reserve: CONFIG.EMAIL_RESERVE_FOR_NEW_SIGNUPS
       });
@@ -466,12 +499,15 @@ function resendConfirmation_(sh, r, rows) {
   var course = findCourseByTitle_(r.course);
   if (!course) { return false; }
   if (isClosed_(course)) {
-    sh.getRange(r.rowIndex, COL.EMAILSTATUS).setValue('Not sent (class has ended)');
+    sh.getRange(r.rowIndex, COL.EMAILSTATUS).setValue('Not sent (registration has closed)');
     return false;
   }
   var finalAmount = Number(r.amount) || 0;
   var m = /^Code (\S+) \((\d+)% off/.exec(r.notes);
   var pricing = { list: course.amount, final: finalAmount, percent: m ? Number(m[2]) : 0, code: m ? m[1] : '' };
+  if (/^Certificate/.test(r.notes)) {
+    pricing = { list: finalAmount, final: finalAmount, percent: 0, code: '', certificate: true };
+  }
   var v = { name: r.name, email: r.email, phone: r.phone, country: r.country, source: r.source };
   var mine = rows.filter(function (x) { return x.email === r.email; });
   var free = finalAmount === 0;
@@ -728,6 +764,9 @@ function summaryTable_(rows) {
 }
 
 function feeLine_(course, pricing) {
+  if (pricing && pricing.certificate) {
+    return '<b>Training:</b> Free<br><b>Certificate:</b> ' + esc_(naira_(pricing.final));
+  }
   if (pricing && pricing.code) {
     var now = pricing.final === 0 ? 'Free' : naira_(pricing.final);
     return '<b>Fee:</b> ' + esc_(now) + ' (code ' + esc_(pricing.code) + ': ' + pricing.percent +
@@ -747,52 +786,71 @@ function detailsBlock_(course, pricing) {
 function joinBlock_(course) {
   return course.joinLink
     ? '<p><a href="' + esc_(course.joinLink) + '" style="display:inline-block;background:#2346D3;color:#fff;text-decoration:none;padding:12px 20px;border-radius:8px;font-weight:bold;">Join link</a></p>'
-    : '<p>We will send you the joining details before the start.</p>';
+    : '<p>We will send you the time and joining details by email and on WhatsApp before the start. Please save our number (' + esc_(CONFIG.WHATSAPP_DISPLAY) + ') so you do not miss it.</p>';
 }
 
 function firstName_(name) { return String(name).split(' ')[0] || 'there'; }
 
-function registrationEmailHtml_(v, course, regId, mine, pricing) {
-  var wa = 'https://wa.me/' + CONFIG.WHATSAPP_NUMBER + '?text=' + encodeURIComponent(
-    'Hello DataKlicks Hub, I have made payment of ' + naira_(pricing.final) + ' for ' + course.title + '. Reg ID: ' + regId + '. Name: ' + v.name + '. Attaching my receipt.');
-  var inner =
-    '<p>Hi ' + esc_(firstName_(v.name)) + ',</p>' +
-    '<p>Thank you for registering for <b>' + esc_(course.title) + '</b>. Your registration ID is <b>' + esc_(regId) + '</b>.</p>' +
-    detailsBlock_(course, pricing) +
-    '<div style="background:#F4F7FF;border-radius:8px;padding:16px;margin:16px 0;">' +
-    '<b>To secure your place, pay ' + esc_(naira_(pricing.final)) + ' to:</b><br>' +
+function waButton_(url, label) {
+  return '<p><a href="' + url + '" style="display:inline-block;background:#25D366;color:#fff;text-decoration:none;padding:12px 20px;border-radius:8px;font-weight:bold;">' + esc_(label) + '</a></p>';
+}
+
+function bankBlock_(title) {
+  return '<div style="background:#F4F7FF;border-radius:8px;padding:16px;margin:16px 0;">' +
+    '<b>' + esc_(title) + '</b><br>' +
     'Bank: ' + esc_(CONFIG.BANK.bank) + '<br>Account name: ' + esc_(CONFIG.BANK.name) + '<br>' +
-    'Account number: <b>' + esc_(CONFIG.BANK.number) + '</b></div>' +
-    '<p>Then send your payment receipt on WhatsApp so we can confirm your slot:</p>' +
-    '<p><a href="' + wa + '" style="display:inline-block;background:#25D366;color:#fff;text-decoration:none;padding:12px 20px;border-radius:8px;font-weight:bold;">Send receipt on WhatsApp</a></p>' +
-    summaryTable_(mine);
+    'Account number: <b>' + esc_(CONFIG.BANK.number) + '</b></div>';
+}
+
+function registrationEmailHtml_(v, course, regId, mine, pricing) {
+  var cert = !!pricing.certificate;
+  var wa = 'https://wa.me/' + CONFIG.WHATSAPP_NUMBER + '?text=' + encodeURIComponent(cert
+    ? 'Hello DataKlicks Hub, I have paid ' + naira_(pricing.final) + ' for the certificate (' + course.title + '). Reg ID: ' + regId + '. Name: ' + v.name + '. Attaching my receipt.'
+    : 'Hello DataKlicks Hub, I have made payment of ' + naira_(pricing.final) + ' for ' + course.title + '. Reg ID: ' + regId + '. Name: ' + v.name + '. Attaching my receipt.');
+  var inner = cert
+    ? '<p>Hi ' + esc_(firstName_(v.name)) + ',</p>' +
+      '<p>Thank you for registering for <b>' + esc_(course.title) + '</b>. Your slot is reserved and your registration ID is <b>' + esc_(regId) + '</b>. You chose the certificate, which is ' + esc_(naira_(pricing.final)) + '.</p>' +
+      detailsBlock_(course, pricing) +
+      bankBlock_('To get your certificate, pay ' + naira_(pricing.final) + ' to:') +
+      '<p>Then send your payment receipt on WhatsApp so we can confirm it:</p>' + waButton_(wa, 'Send receipt on WhatsApp') +
+      joinBlock_(course) + summaryTable_(mine)
+    : '<p>Hi ' + esc_(firstName_(v.name)) + ',</p>' +
+      '<p>Thank you for registering for <b>' + esc_(course.title) + '</b>. Your registration ID is <b>' + esc_(regId) + '</b>.</p>' +
+      detailsBlock_(course, pricing) +
+      bankBlock_('To secure your place, pay ' + naira_(pricing.final) + ' to:') +
+      '<p>Then send your payment receipt on WhatsApp so we can confirm your slot:</p>' + waButton_(wa, 'Send receipt on WhatsApp') +
+      summaryTable_(mine);
   return shell_('Registration received', inner);
 }
 
 function paymentConfirmedHtml_(name, course, regId, rows) {
+  var what = course.certificate
+    ? 'We have confirmed your certificate payment of ' + esc_(naira_(course.amount)) + ' for <b>' + esc_(course.title) + '</b> (ref <b>' + esc_(regId) + '</b>). Your certificate is secured and your slot stays reserved.'
+    : 'We have confirmed your payment for <b>' + esc_(course.title) + '</b> (ref <b>' + esc_(regId) + '</b>). Your place is secured.';
   var inner =
     '<p>Hi ' + esc_(firstName_(name)) + ',</p>' +
-    '<p>We have confirmed your payment for <b>' + esc_(course.title) + '</b> (ref <b>' + esc_(regId) + '</b>). Your place is secured.</p>' +
-    detailsBlock_(course) + joinBlock_(course) + summaryTable_(rows);
+    '<p>' + what + '</p>' +
+    detailsBlock_(course, course.certificate ? { certificate: true, final: Number(course.amount) } : undefined) +
+    joinBlock_(course) + summaryTable_(rows);
   return shell_('Payment confirmed', inner);
 }
 
 // The follow-up: repeats the payment details for someone who has not paid yet.
 function reminderEmailHtml_(row, base, mine) {
   // Use what this person actually owes (it may be discounted), not the list price.
+  var cert = /^Certificate/.test(row.notes);
   var course = { title: base.title, when: base.when, where: base.where, joinLink: base.joinLink, amount: row.amount };
-  var wa = 'https://wa.me/' + CONFIG.WHATSAPP_NUMBER + '?text=' + encodeURIComponent(
-    'Hello DataKlicks Hub, I have made payment of ' + naira_(row.amount) + ' for ' + course.title + '. Reg ID: ' + row.regId + '. Name: ' + row.name + '. Attaching my receipt.');
+  var wa = 'https://wa.me/' + CONFIG.WHATSAPP_NUMBER + '?text=' + encodeURIComponent(cert
+    ? 'Hello DataKlicks Hub, I have paid ' + naira_(row.amount) + ' for the certificate (' + course.title + '). Reg ID: ' + row.regId + '. Name: ' + row.name + '. Attaching my receipt.'
+    : 'Hello DataKlicks Hub, I have made payment of ' + naira_(row.amount) + ' for ' + course.title + '. Reg ID: ' + row.regId + '. Name: ' + row.name + '. Attaching my receipt.');
+  var lead = cert
+    ? '<p>This is a friendly reminder that your certificate payment of ' + esc_(naira_(row.amount)) + ' for <b>' + esc_(course.title) + '</b> (ID <b>' + esc_(row.regId) + '</b>) is still waiting. Your training slot is reserved either way.</p>'
+    : '<p>This is a friendly reminder that your registration for <b>' + esc_(course.title) + '</b> (ID <b>' + esc_(row.regId) + '</b>) is still waiting for payment. Your place is secured once we receive it.</p>';
   var inner =
-    '<p>Hi ' + esc_(firstName_(row.name)) + ',</p>' +
-    '<p>This is a friendly reminder that your registration for <b>' + esc_(course.title) + '</b> (ID <b>' + esc_(row.regId) + '</b>) is still waiting for payment. Your place is secured once we receive it.</p>' +
-    detailsBlock_(course) +
-    '<div style="background:#F4F7FF;border-radius:8px;padding:16px;margin:16px 0;">' +
-    '<b>Please pay ' + esc_(naira_(row.amount)) + ' to:</b><br>' +
-    'Bank: ' + esc_(CONFIG.BANK.bank) + '<br>Account name: ' + esc_(CONFIG.BANK.name) + '<br>' +
-    'Account number: <b>' + esc_(CONFIG.BANK.number) + '</b></div>' +
-    '<p>Then send your payment receipt on WhatsApp so we can confirm your place:</p>' +
-    '<p><a href="' + wa + '" style="display:inline-block;background:#25D366;color:#fff;text-decoration:none;padding:12px 20px;border-radius:8px;font-weight:bold;">Send receipt on WhatsApp</a></p>' +
+    '<p>Hi ' + esc_(firstName_(row.name)) + ',</p>' + lead +
+    detailsBlock_(course, cert ? { certificate: true, final: Number(row.amount) } : undefined) +
+    bankBlock_((cert ? 'To get your certificate, pay ' : 'Please pay ') + naira_(row.amount) + ' to:') +
+    '<p>Then send your payment receipt on WhatsApp so we can confirm it:</p>' + waButton_(wa, 'Send receipt on WhatsApp') +
     '<p style="color:#475569;font-size:13px;">Already paid and sent your receipt? Please ignore this email. We will confirm your payment shortly.</p>' +
     summaryTable_(mine);
   return shell_('Payment reminder', inner);
@@ -803,34 +861,25 @@ function freeEmailHtml_(v, course, regId, mine, pricing) {
   var why = pricing.code
     ? 'Your place is confirmed and <b>no payment is needed</b> (code ' + esc_(pricing.code) + ' applied).'
     : 'Your place is confirmed. This training is <b>free</b>, so there is nothing to pay.';
-  var when = course.when
-    ? ''
-    : '<p>We will email you, and message you on WhatsApp, the <b>date, time and joining details</b> before the training. Please save our number (' + esc_(CONFIG.WHATSAPP_DISPLAY) + ') so you do not miss it.</p>';
   var inner =
     '<p>Hi ' + esc_(firstName_(v.name)) + ',</p>' +
     '<p>You are registered for <b>' + esc_(course.title) + '</b>. ' + why + ' Your registration ID is <b>' + esc_(regId) + '</b>.</p>' +
-    detailsBlock_(course, pricing) + when + (course.when ? joinBlock_(course) : '') +
-    certificateBlock_(course, regId, v) + summaryTable_(mine);
+    detailsBlock_(course, pricing) + joinBlock_(course) +
+    certificateUpsell_(course) + summaryTable_(mine);
   return shell_('You are registered', inner);
 }
 
-// The optional certificate (course.certificateFee): bank details and a WhatsApp button for the receipt.
-function certificateBlock_(course, regId, v) {
-  if (!course.certificateFee) { return ''; }
-  var wa = 'https://wa.me/' + CONFIG.WHATSAPP_NUMBER + '?text=' + encodeURIComponent(
-    'Hello DataKlicks Hub, I would like the certificate (' + naira_(course.certificateFee) + ') for ' + course.title + '. Reg ID: ' + regId + '. Name: ' + v.name + '. Attaching my receipt.');
-  return '<div style="background:#F4F7FF;border-radius:8px;padding:16px;margin:16px 0;">' +
-    '<b>Want a certificate? It is ' + esc_(naira_(course.certificateFee)) + '.</b><br>' +
-    'The training itself stays free. To add the certificate, pay to:<br>' +
-    'Bank: ' + esc_(CONFIG.BANK.bank) + '<br>Account name: ' + esc_(CONFIG.BANK.name) + '<br>' +
-    'Account number: <b>' + esc_(CONFIG.BANK.number) + '</b></div>' +
-    '<p>Then send your receipt on WhatsApp:</p>' +
-    '<p><a href="' + wa + '" style="display:inline-block;background:#25D366;color:#fff;text-decoration:none;padding:12px 20px;border-radius:8px;font-weight:bold;">Send certificate receipt on WhatsApp</a></p>';
+// For a free course that sells a certificate: how to add it after registering without it.
+function certificateUpsell_(course) {
+  if (!course.certificateFee || !course.pageUrl) { return ''; }
+  return '<p style="background:#F4F7FF;border-radius:8px;padding:16px;margin:16px 0;">' +
+    '<b>Want the certificate (' + esc_(naira_(course.certificateFee)) + ')?</b><br>' +
+    '<a href="' + esc_(course.pageUrl) + '?certificate=1#register" style="color:#2346D3;">Add it here</a>: the form opens with the certificate ticked. Register again with this same email and we will send you the payment details.</p>';
 }
 
 function adminEmailHtml_(v, course, regId, pricing) {
   var paidLine = pricing.final === 0
-    ? '<p>This registration is free (code ' + esc_(pricing.code) + '), so it is already marked <b>Paid</b>. No payment to chase.</p>'
+    ? '<p>This registration is free' + (pricing.code ? ' (code ' + esc_(pricing.code) + ')' : '') + ', so it is already marked <b>Paid</b>. No payment to chase.</p>'
     : '<p>When their receipt arrives, set Status to <b>Paid</b> in the sheet and they will be emailed automatically.</p>';
   var inner =
     '<p><b>' + esc_(v.name) + '</b> registered for <b>' + esc_(course.title) + '</b> (' + esc_(regId) + ').</p>' +

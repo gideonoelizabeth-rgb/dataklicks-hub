@@ -75,7 +75,9 @@
         website: String(d.get('website') || ''),
         source: sourceInfo(),
         page: location.pathname,
-        code: (DK.discountCodes && form.querySelector('[name="code"]')) ? String(d.get('code') || '').trim() : ''
+        code: (DK.discountCodes && form.querySelector('[name="code"]')) ? String(d.get('code') || '').trim() : '',
+        // Courses with an optional paid certificate have a "certificate" checkbox.
+        certificate: !!(form.querySelector('[name="certificate"]') && form.querySelector('[name="certificate"]').checked)
       };
 
       var label = btn.textContent;
@@ -93,7 +95,7 @@
         // What this person actually owes (the server applies any discount code).
         var amount = res.saved && res.amount != null ? Number(res.amount) : course.amount;
         // Nothing left to pay: a free registration, or one that is already confirmed.
-        var done = !!res.saved && (amount === 0 || (res.duplicate && res.status === 'Paid'));
+        var done = !!(res.saved && (amount === 0 || (res.duplicate && res.status === 'Paid')));
         var disc = res.saved && res.discount ? res.discount : null;
         var ref = res.regId ? ' Reg ID: ' + res.regId + '.' : '';
         var msg = opts.receiptMessage
@@ -108,14 +110,21 @@
           });
         }
         opts.paymentCard.classList.toggle('is-done', done);
-        var freeCourse = course.amount === 0; // a free course never shows "complete payment"
+        // Lets a page show things only once saved, or only when there is something to pay.
+        opts.paymentCard.classList.toggle('is-saved', !!res.saved);
+        opts.paymentCard.classList.toggle('is-payable', !!res.saved && amount > 0);
+        // A free course never says "complete payment"; one with a paid certificate says so for the certificate.
+        var certPay = !!course.certificateFee && !!res.saved && amount > 0;
+        var freeCourse = course.amount === 0 && !certPay;
         var eyebrow = opts.paymentCard.querySelector('.eyebrow');
-        if (eyebrow) eyebrow.textContent = done ? 'Registration complete' : (freeCourse ? 'Registration' : 'Payment · Step 2');
+        if (eyebrow) eyebrow.textContent = done ? 'Registration complete' : (certPay ? 'Certificate payment' : (freeCourse ? 'Registration' : 'Payment · Step 2'));
 
         if (res.duplicate) {
           opts.greeting.textContent = 'Welcome back, ' + first + '. You are already registered.';
         } else if (done) {
           opts.greeting.textContent = 'You are in, ' + first + '!';
+        } else if (certPay) {
+          opts.greeting.textContent = 'You are registered, ' + first + '. Pay ' + fmt(amount) + ' for your certificate.';
         } else if (res.updated) {
           opts.greeting.textContent = 'Code applied, ' + first + '. Your fee is now ' + fmt(amount) + '.';
         } else if (freeCourse) {
