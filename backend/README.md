@@ -81,6 +81,24 @@ the "Payment confirmed" message. To reuse the entry for a new class, change its 
 `when`, `amount` and `closesAt`, then deploy a new version. Add a page for it on the site
 (the old one was removed from the site once the class ended).
 
+## Free training with limited slots (sisters' digital marketing training)
+
+`CONFIG.COURSES['sisters-marketing']` is a free course (`amount: 0`) with `capacity: 30`.
+Its registration page is `/sisters-training` on the website.
+
+- Each registration is saved with Status **Paid** (meaning confirmed, no fee) and the person
+  gets a "You are registered" email. The email lists the optional certificate (`certificateFee`,
+  NGN 5,000) with the bank details and a WhatsApp button for the receipt. Certificate payments
+  are handled on WhatsApp and are not tracked in the sheet.
+- The 31st person is told all slots are taken and to join the waiting list on WhatsApp.
+  Setting a row to **Cancelled** gives its place back. Anyone already registered is never turned away.
+- The page shows the live count ("12 of 30 slots left") by asking the web app for
+  `?course=sisters-marketing`. It only gets counts, never anyone's details. If the web app has not
+  been updated to this version, the page shows "Registration is opening shortly" instead of a form.
+- The date is not known yet, so the email says it will be sent later. When it is fixed, fill in
+  `when`, `where`, `joinLink` and `closesAt` (the start time) for this course, then deploy a new
+  version. After `closesAt`, new registrations are refused.
+
 ## Discount codes
 
 Codes are listed in `CONFIG.DISCOUNTS` at the top of `Code.gs` (never on the website):

@@ -70,6 +70,20 @@ var CONFIG = {
       when: '4 weeks',
       where: 'Hybrid',
       joinLink: ''
+    },
+    // Free training for 30 sisters (REMOULDED Sisters Conference 2026). amount 0 = free, so
+    // registrations are confirmed straight away. capacity stops the 31st registration.
+    // certificateFee is the optional certificate, paid by bank transfer after registering.
+    // When the date is fixed, fill in `when`, `where`, `joinLink`, and `closesAt` (the start
+    // time) here, then deploy a new version.
+    'sisters-marketing': {
+      title: 'Free Digital Marketing Training for Business Owners',
+      amount: 0,
+      capacity: 30,
+      certificateFee: 5000,
+      when: '',
+      where: '',
+      joinLink: ''
     }
   },
 
@@ -107,18 +121,26 @@ function doPost(e) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
-// Health check only. Never returns registration data.
-function doGet() {
+// Health check, plus (with ?course=<id>) how many slots are left for a limited course.
+// Never returns anyone's details, only counts.
+function doGet(e) {
   var timer = ScriptApp.getProjectTriggers().some(function (t) { return t.getHandlerFunction() === 'sendFollowUps'; });
   var quota = null;
   try { quota = MailApp.getRemainingDailyQuota(); } catch (err) { quota = null; }
-  return ContentService.createTextOutput(JSON.stringify({
+  var out = {
     ok: true, service: 'DataKlicks Hub registrations',
-    features: ['discount-codes', 'code-limits', 'payment-reminders', 'email-status'],
+    features: ['discount-codes', 'code-limits', 'payment-reminders', 'email-status', 'slot-limits'],
     reminderTimerInstalled: timer,
     emailQuotaRemaining: quota,
     emailsSentToday: emailsSentToday_()
-  })).setMimeType(ContentService.MimeType.JSON);
+  };
+  var id = e && e.parameter && e.parameter.course;
+  if (id && Object.prototype.hasOwnProperty.call(CONFIG.COURSES, id) && typeof CONFIG.COURSES[id].capacity === 'number') {
+    var c = CONFIG.COURSES[id];
+    var taken = courseTaken_(readRows_(getSheet_()), c);
+    out.slots = { capacity: c.capacity, taken: taken, left: Math.max(0, c.capacity - taken) };
+  }
+  return ContentService.createTextOutput(JSON.stringify(out)).setMimeType(ContentService.MimeType.JSON);
 }
 
 /* ---------- Registration ---------- */
@@ -197,6 +219,13 @@ function handleRegistration_(d) {
 
     if (codeUsedUp_(rows, v.code)) { return { ok: false, error: usedUpMessage_(pricing) }; }
 
+    // A limited course (the free sisters' training) stops when its slots are gone.
+    // Anyone already registered was handled above, so they are never turned away.
+    if (typeof course.capacity === 'number' && courseTaken_(rows, course) >= course.capacity) {
+      return { ok: false, full: true, error: 'Sorry, all ' + course.capacity + ' slots have been taken. ' +
+        'Message us on WhatsApp (' + CONFIG.WHATSAPP_DISPLAY + ') to join the waiting list.' };
+    }
+
     var regId = 'DK-' + Utilities.getUuid().replace(/-/g, '').slice(0, 6).toUpperCase();
     var status = free ? 'Paid' : 'Pending';
     sh.appendRow([now, regId, v.name, v.email, v.phone, v.country, course.title,
@@ -226,6 +255,11 @@ function handleRegistration_(d) {
   } finally {
     lock.releaseLock();
   }
+}
+
+// How many places are taken on a course. A Cancelled registration gives its place back.
+function courseTaken_(rows, course) {
+  return rows.filter(function (r) { return r.course === course.title && r.status !== 'Cancelled'; }).length;
 }
 
 // A course with a closesAt time (the one-day class) stops taking registrations, payment
@@ -499,7 +533,7 @@ function digestEmailHtml_(fresh, allRows) {
       '<td style="padding:6px;border-bottom:1px solid #E2E8F0;white-space:nowrap;">' + esc_(when) + '</td>' +
       '<td style="padding:6px;border-bottom:1px solid #E2E8F0;">' + esc_(r.name) + '<br><span style="color:#475569;">' + esc_(r.email) + '</span></td>' +
       '<td style="padding:6px;border-bottom:1px solid #E2E8F0;">' + esc_(r.course) + '</td>' +
-      '<td style="padding:6px;border-bottom:1px solid #E2E8F0;white-space:nowrap;">' + esc_(naira_(r.amount)) + '<br>' + esc_(r.status) + '</td>' +
+      '<td style="padding:6px;border-bottom:1px solid #E2E8F0;white-space:nowrap;">' + esc_(amountText_(r.amount)) + '<br>' + esc_(statusLabel_(r)) + '</td>' +
       '<td style="padding:6px;border-bottom:1px solid #E2E8F0;">' + esc_(r.emailStatus || 'unknown') + '</td>' +
       '</tr>';
   }).join('');
@@ -660,6 +694,10 @@ function naira_(n) {
   return 'NGN ' + String(Math.round(Number(n) || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
+// How a fee and a status read in emails: a free place is "Free" and "Confirmed", not "NGN 0" and "Paid".
+function amountText_(n) { return Number(n) ? naira_(n) : 'Free'; }
+function statusLabel_(r) { return (r.status === 'Paid' && !(Number(r.amount) > 0)) ? 'Confirmed' : r.status; }
+
 function shell_(heading, inner) {
   return '<div style="background:#F4F7FF;padding:24px 12px;font-family:Arial,Helvetica,sans-serif;color:#0B1220;">' +
     '<div style="max-width:560px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;border:1px solid #E2E8F0;">' +
@@ -679,8 +717,8 @@ function summaryTable_(rows) {
     return '<tr>' +
       '<td style="padding:8px;border-bottom:1px solid #E2E8F0;">' + esc_(r.course) + '</td>' +
       '<td style="padding:8px;border-bottom:1px solid #E2E8F0;white-space:nowrap;">' + esc_(when) + '</td>' +
-      '<td style="padding:8px;border-bottom:1px solid #E2E8F0;white-space:nowrap;">' + esc_(naira_(r.amount)) + '</td>' +
-      '<td style="padding:8px;border-bottom:1px solid #E2E8F0;font-weight:bold;color:' + color + ';">' + esc_(r.status) + '</td>' +
+      '<td style="padding:8px;border-bottom:1px solid #E2E8F0;white-space:nowrap;">' + esc_(amountText_(r.amount)) + '</td>' +
+      '<td style="padding:8px;border-bottom:1px solid #E2E8F0;font-weight:bold;color:' + color + ';">' + esc_(statusLabel_(r)) + '</td>' +
       '</tr>';
   }).join('');
   return '<h3 style="margin:24px 0 8px;font-size:16px;">Your registrations with DataKlicks Hub</h3>' +
@@ -695,7 +733,7 @@ function feeLine_(course, pricing) {
     return '<b>Fee:</b> ' + esc_(now) + ' (code ' + esc_(pricing.code) + ': ' + pricing.percent +
       '% off, normal price ' + esc_(naira_(pricing.list)) + ')';
   }
-  return '<b>Fee:</b> ' + esc_(naira_(course.amount));
+  return '<b>Fee:</b> ' + (Number(course.amount) ? esc_(naira_(course.amount)) : 'Free');
 }
 
 function detailsBlock_(course, pricing) {
@@ -760,13 +798,34 @@ function reminderEmailHtml_(row, base, mine) {
   return shell_('Payment reminder', inner);
 }
 
-// For a free registration (100% discount code): no payment step, no bank details.
+// For a free registration (a 100% discount code, or a free course): no payment step.
 function freeEmailHtml_(v, course, regId, mine, pricing) {
+  var why = pricing.code
+    ? 'Your place is confirmed and <b>no payment is needed</b> (code ' + esc_(pricing.code) + ' applied).'
+    : 'Your place is confirmed. This training is <b>free</b>, so there is nothing to pay.';
+  var when = course.when
+    ? ''
+    : '<p>We will email you, and message you on WhatsApp, the <b>date, time and joining details</b> before the training. Please save our number (' + esc_(CONFIG.WHATSAPP_DISPLAY) + ') so you do not miss it.</p>';
   var inner =
     '<p>Hi ' + esc_(firstName_(v.name)) + ',</p>' +
-    '<p>You are registered for <b>' + esc_(course.title) + '</b>. Your place is confirmed and <b>no payment is needed</b> (code ' + esc_(pricing.code) + ' applied). Your registration ID is <b>' + esc_(regId) + '</b>.</p>' +
-    detailsBlock_(course, pricing) + joinBlock_(course) + summaryTable_(mine);
+    '<p>You are registered for <b>' + esc_(course.title) + '</b>. ' + why + ' Your registration ID is <b>' + esc_(regId) + '</b>.</p>' +
+    detailsBlock_(course, pricing) + when + (course.when ? joinBlock_(course) : '') +
+    certificateBlock_(course, regId, v) + summaryTable_(mine);
   return shell_('You are registered', inner);
+}
+
+// The optional certificate (course.certificateFee): bank details and a WhatsApp button for the receipt.
+function certificateBlock_(course, regId, v) {
+  if (!course.certificateFee) { return ''; }
+  var wa = 'https://wa.me/' + CONFIG.WHATSAPP_NUMBER + '?text=' + encodeURIComponent(
+    'Hello DataKlicks Hub, I would like the certificate (' + naira_(course.certificateFee) + ') for ' + course.title + '. Reg ID: ' + regId + '. Name: ' + v.name + '. Attaching my receipt.');
+  return '<div style="background:#F4F7FF;border-radius:8px;padding:16px;margin:16px 0;">' +
+    '<b>Want a certificate? It is ' + esc_(naira_(course.certificateFee)) + '.</b><br>' +
+    'The training itself stays free. To add the certificate, pay to:<br>' +
+    'Bank: ' + esc_(CONFIG.BANK.bank) + '<br>Account name: ' + esc_(CONFIG.BANK.name) + '<br>' +
+    'Account number: <b>' + esc_(CONFIG.BANK.number) + '</b></div>' +
+    '<p>Then send your receipt on WhatsApp:</p>' +
+    '<p><a href="' + wa + '" style="display:inline-block;background:#25D366;color:#fff;text-decoration:none;padding:12px 20px;border-radius:8px;font-weight:bold;">Send certificate receipt on WhatsApp</a></p>';
 }
 
 function adminEmailHtml_(v, course, regId, pricing) {

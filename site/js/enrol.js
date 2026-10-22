@@ -96,8 +96,10 @@
         var done = !!res.saved && (amount === 0 || (res.duplicate && res.status === 'Paid'));
         var disc = res.saved && res.discount ? res.discount : null;
         var ref = res.regId ? ' Reg ID: ' + res.regId + '.' : '';
-        var msg = 'Hello DataKlicks Hub, I have made payment of ' + fmt(amount) + ' for ' + course.title + '.' + ref +
-          ' Name: ' + name + '. Email: ' + email + '. Phone: ' + phone + '. Attaching my receipt.';
+        var msg = opts.receiptMessage
+          ? opts.receiptMessage({ name: name, email: email, phone: phone, regId: res.regId || '', amount: amount })
+          : 'Hello DataKlicks Hub, I have made payment of ' + fmt(amount) + ' for ' + course.title + '.' + ref +
+            ' Name: ' + name + '. Email: ' + email + '. Phone: ' + phone + '. Attaching my receipt.';
         opts.receiptLink.href = 'https://wa.me/' + DK.whatsapp + '?text=' + encodeURIComponent(msg);
 
         if (res.saved) {
@@ -106,8 +108,9 @@
           });
         }
         opts.paymentCard.classList.toggle('is-done', done);
+        var freeCourse = course.amount === 0; // a free course never shows "complete payment"
         var eyebrow = opts.paymentCard.querySelector('.eyebrow');
-        if (eyebrow) eyebrow.textContent = done ? 'Registration complete' : 'Payment · Step 2';
+        if (eyebrow) eyebrow.textContent = done ? 'Registration complete' : (freeCourse ? 'Registration' : 'Payment · Step 2');
 
         if (res.duplicate) {
           opts.greeting.textContent = 'Welcome back, ' + first + '. You are already registered.';
@@ -115,6 +118,8 @@
           opts.greeting.textContent = 'You are in, ' + first + '!';
         } else if (res.updated) {
           opts.greeting.textContent = 'Code applied, ' + first + '. Your fee is now ' + fmt(amount) + '.';
+        } else if (freeCourse) {
+          opts.greeting.textContent = 'Thank you, ' + first + '.';
         } else {
           opts.greeting.textContent = 'Thank you, ' + first + '. Please complete payment.';
         }

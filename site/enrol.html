@@ -176,18 +176,18 @@
 </footer>
 
 <script src="js/main.js?v=20261010"></script>
-<script src="js/config.js?v=20261010"></script>
-<script src="js/enrol.js?v=20261011"></script>
+<script src="js/config.js?v=20261011"></script>
+<script src="js/enrol.js?v=20261012"></script>
 <script>
   (function () {
     var DK = window.DK;
     var id = new URLSearchParams(location.search).get('course');
-    var course = id && Object.prototype.hasOwnProperty.call(DK.courses, id) ? DK.courses[id] : null;
+    var course = id && Object.prototype.hasOwnProperty.call(DK.courses, id) && !DK.courses[id].hidden ? DK.courses[id] : null;
 
     if (!course) {
       // No (valid) course chosen: let the visitor pick one.
       var grid = document.getElementById('chooserGrid');
-      Object.keys(DK.courses).forEach(function (k) {
+      Object.keys(DK.courses).filter(function (k) { return !DK.courses[k].hidden; }).forEach(function (k) {
         var c = DK.courses[k], a = document.createElement('a');
         a.className = 'card'; a.href = 'enrol.html?course=' + encodeURIComponent(k);
         var h = document.createElement('h3'); h.textContent = c.title;
