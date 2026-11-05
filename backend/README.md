@@ -51,7 +51,9 @@ No server, no paid service. Setup takes about 10 minutes, once.
 
 Edit `CONFIG.COURSES` at the top of `Code.gs` (this is where the real price lives),
 save, then **Deploy → Manage deployments → pencil icon → Version: New version →
-Deploy**. Also update the displayed price in `site/js/config.js`.
+Deploy**. Also update the displayed price in `site/js/config.js` and on the home and
+courses pages. Both must match: the website only shows the price, the real one is in `Code.gs`.
+Registrations already in the sheet keep the amount they were saved with.
 
 ## Payment reminder (the follow-up email)
 
@@ -81,11 +83,16 @@ the "Payment confirmed" message. To reuse the entry for a new class, change its 
 `when`, `amount` and `closesAt`, then deploy a new version. Add a page for it on the site
 (the old one was removed from the site once the class ended).
 
-## Free training with limited slots (sisters' digital marketing training)
+## Free training with limited slots (the sisters' training, now ended)
+
+This training ran on 26-28 October 2026. **Its page and banners were removed from the website** (the old
+links go to the Courses page). The notes below describe how it worked, for reuse. Its entry in
+`CONFIG.COURSES` stays so its rows can still be marked Paid and emailed, and registrations are refused
+after `closesAt`.
 
 `CONFIG.COURSES['sisters-marketing']` is a free course (`amount: 0`) with `capacity: 30` and an
-optional certificate (`certificateFee: 5000`). Its registration page is `/sisters-training` on the
-website, and it is linked from a banner at the top of the home, courses, about, blog and contact pages.
+optional certificate (`certificateFee: 5000`). Its registration page was `/sisters-training`, linked from a
+banner at the top of the main pages.
 
 - **Free only:** the registration is saved with Amount 0 and Status **Paid** (meaning confirmed,
   no fee). The person gets a "You are registered" email with the dates (`when`) and a link to add the

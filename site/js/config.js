@@ -17,18 +17,9 @@ window.DK = {
   bank: { bank: 'WEMA BANK', name: 'DATAKLICKS HUB', number: '0125900780' },
 
   courses: {
-    // Free training for 30 sisters. hidden = not listed on the general enrolment page,
-    // only reachable from its own registration page.
-    'sisters-marketing': {
-      title: 'Free Digital Marketing Training for Business Owners',
-      amount: 0,
-      certificateFee: 5000,
-      meta: 'Free · Oct 26, 27 & 28, 2026 · 30 slots',
-      hidden: true
-    },
     'data-analytics-ai': {
       title: 'Data Analytics & AI',
-      amount: 400000,
+      amount: 500000,
       meta: '3 months · Virtual'
     },
     'sql': {

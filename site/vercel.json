@@ -23,11 +23,12 @@
     }
   ],
   "redirects": [
-    { "source": "/sisters", "destination": "/sisters-training", "permanent": false },
-    { "source": "/Sisters", "destination": "/sisters-training", "permanent": false },
-    { "source": "/remoulded", "destination": "/sisters-training", "permanent": false },
-    { "source": "/free-training", "destination": "/sisters-training", "permanent": false },
-    { "source": "/Sisters-Training", "destination": "/sisters-training", "permanent": false },
+    { "source": "/sisters-training", "destination": "/courses", "permanent": false },
+    { "source": "/sisters", "destination": "/courses", "permanent": false },
+    { "source": "/Sisters", "destination": "/courses", "permanent": false },
+    { "source": "/remoulded", "destination": "/courses", "permanent": false },
+    { "source": "/free-training", "destination": "/courses", "permanent": false },
+    { "source": "/Sisters-Training", "destination": "/courses", "permanent": false },
     { "source": "/designlikeaprowithai", "destination": "/courses", "permanent": false },
     { "source": "/DESIGNLIKEAPROWITHAI", "destination": "/courses", "permanent": false },
     { "source": "/Designlikeaprowithai", "destination": "/courses", "permanent": false },

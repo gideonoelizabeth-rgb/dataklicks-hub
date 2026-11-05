@@ -52,7 +52,7 @@ var CONFIG = {
     },
     'data-analytics-ai': {
       title: 'Data Analytics & AI',
-      amount: 400000,
+      amount: 500000,
       when: '3 months',
       where: 'Virtual',
       joinLink: ''
@@ -71,12 +71,11 @@ var CONFIG = {
       where: 'Hybrid',
       joinLink: ''
     },
-    // Free training for 30 sisters (REMOULDED Sisters Conference 2026). The training is free
-    // (amount 0). certificateFee is the optional certificate: a sister who ticks "I want the
-    // certificate" is registered at that amount as Pending until you set her row to Paid.
-    // capacity stops the 31st registration. closesAt is when registration, payment reminders
-    // and re-sent emails stop (here: the end of the last training day). When the time and
-    // venue or link are fixed, fill in `where` and `joinLink`, then deploy a new version.
+    // ENDED. Free training for 30 sisters (REMOULDED Sisters Conference 2026), held 26-28 Oct
+    // 2026. Its page was removed from the website; registrations are refused after closesAt.
+    // This entry stays so its rows in the sheet can still be marked Paid and emailed.
+    // (The training is free, amount 0. certificateFee is the optional certificate: ticking it
+    // registered a sister at that amount as Pending until her row was set to Paid.)
     'sisters-marketing': {
       title: 'Free Digital Marketing Training for Business Owners',
       amount: 0,
