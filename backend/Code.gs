@@ -370,10 +370,10 @@ function validate_(d) {
 
   var courseId = str(d.course, 40);
   if (!Object.prototype.hasOwnProperty.call(CONFIG.COURSES, courseId)) {
-    return { error: 'That course is not available for registration.' };
+    return { error: 'That class is not available for registration.' };
   }
   if (isClosed_(CONFIG.COURSES[courseId])) {
-    return { error: 'Registration for this training has closed. Please see our other courses on the website.' };
+    return { error: 'Registration for this training has closed. Please see our other virtual classes on the website.' };
   }
 
   if (d.consent !== true) { return { error: 'Please accept the privacy notice to continue.' }; }
@@ -382,7 +382,7 @@ function validate_(d) {
   if (code) {
     var dc = Object.prototype.hasOwnProperty.call(CONFIG.DISCOUNTS, code) ? CONFIG.DISCOUNTS[code] : null;
     if (!dc || dc.courses.indexOf(courseId) === -1) {
-      return { error: 'That discount code is not valid for this course.' };
+      return { error: 'That discount code is not valid for this class.' };
     }
   }
 
@@ -597,7 +597,7 @@ function digestEmailHtml_(fresh, allRows) {
   var inner =
     '<p>' + fresh.length + ' new registration(s) since the last update.</p>' + warn +
     '<table style="width:100%;border-collapse:collapse;font-size:13px;">' +
-    '<tr style="text-align:left;color:#475569;"><th style="padding:6px;">Time</th><th style="padding:6px;">Who</th><th style="padding:6px;">Course</th><th style="padding:6px;">Fee / status</th><th style="padding:6px;">Their email</th></tr>' + tr + '</table>' +
+    '<tr style="text-align:left;color:#475569;"><th style="padding:6px;">Time</th><th style="padding:6px;">Who</th><th style="padding:6px;">Class</th><th style="padding:6px;">Fee / status</th><th style="padding:6px;">Their email</th></tr>' + tr + '</table>' +
     '<p>When a receipt arrives, set Status to <b>Paid</b> in the sheet and they will be emailed automatically.</p>' +
     '<p><a href="' + esc_(SpreadsheetApp.getActiveSpreadsheet().getUrl()) + '">Open the registrations sheet</a></p>';
   return shell_('New registrations', inner);
@@ -783,7 +783,7 @@ function summaryTable_(rows) {
   }).join('');
   return '<h3 style="margin:24px 0 8px;font-size:16px;">Your registrations with DataKlicks Hub</h3>' +
     '<table style="width:100%;border-collapse:collapse;font-size:14px;">' +
-    '<tr style="text-align:left;color:#475569;"><th style="padding:8px;">Course</th><th style="padding:8px;">Date</th>' +
+    '<tr style="text-align:left;color:#475569;"><th style="padding:8px;">Class</th><th style="padding:8px;">Date</th>' +
     '<th style="padding:8px;">Fee</th><th style="padding:8px;">Status</th></tr>' + tr + '</table>';
 }
 

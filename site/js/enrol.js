@@ -153,7 +153,7 @@
           note = 'Your registration message is ready in WhatsApp. Tap <strong>Send</strong> so our team receives it. ' +
             'Did not open? <a href="' + teamUrl + '" target="_blank" rel="noopener">Send it from here</a>.';
         } else if (res.saved && res.duplicate) {
-          note = 'We already have your registration for this course' + (res.status === 'Paid' ? ' and it is confirmed.' : '. Payment details are below.') +
+          note = 'We already have your registration for this class' + (res.status === 'Paid' ? ' and it is confirmed.' : '. Payment details are below.') +
             (res.emailed ? ' We have just emailed the details to <strong data-email></strong>. ' + spamHint : '');
         } else if (res.saved && done) {
           note = (disc ? 'Code <strong>' + String(disc.code).replace(/[^A-Za-z0-9]/g, '') + '</strong> applied: your place is free, no payment needed. ' : 'Your place is confirmed. ') +
