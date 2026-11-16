@@ -26,10 +26,17 @@ if (menuToggle && navList) {
 
 // Animated counters
 const counters = document.querySelectorAll('[data-count]');
+// The final figure is already in the HTML, so it shows without JavaScript, in search results
+// and to screen readers. The count-up only replays it when the number scrolls into view.
+// data-plain = no thousands separator (a year must read 2023, not 2,023).
+const formatCount = (el, n) => {
+  const prefix = el.dataset.prefix || '';
+  const suffix = el.dataset.suffix || '';
+  const body = el.hasAttribute('data-plain') ? String(n) : n.toLocaleString();
+  return `${prefix}${body}${suffix}`;
+};
 const animateCount = (el) => {
   const target = parseFloat(el.dataset.count);
-  const suffix = el.dataset.suffix || '';
-  const prefix = el.dataset.prefix || '';
   const duration = 1600;
   const start = performance.now();
   const startVal = 0;
@@ -37,9 +44,9 @@ const animateCount = (el) => {
     const elapsed = Math.min((now - start) / duration, 1);
     const eased = 1 - Math.pow(1 - elapsed, 3);
     const current = Math.floor(startVal + (target - startVal) * eased);
-    el.textContent = `${prefix}${current.toLocaleString()}${suffix}`;
+    el.textContent = formatCount(el, current);
     if (elapsed < 1) requestAnimationFrame(step);
-    else el.textContent = `${prefix}${target.toLocaleString()}${suffix}`;
+    else el.textContent = formatCount(el, target);
   };
   requestAnimationFrame(step);
 };
@@ -53,9 +60,7 @@ const observer = new IntersectionObserver((entries) => {
         if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
           animateCount(el);
         } else {
-          const suffix = el.dataset.suffix || '';
-          const prefix = el.dataset.prefix || '';
-          el.textContent = `${prefix}${parseFloat(el.dataset.count).toLocaleString()}${suffix}`;
+          el.textContent = formatCount(el, parseFloat(el.dataset.count));
         }
       }
       if (el.classList.contains('fade-in')) {

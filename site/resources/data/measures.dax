@@ -1,0 +1,35 @@
+// Model: fact_loans (many) -> dim_branch, dim_product, dim_date (one). Relate fact_loans[disbursed_date] to dim_date[date].
+
+Total Disbursed = SUM ( fact_loans[amount_disbursed] )
+
+Outstanding Balance = SUM ( fact_loans[outstanding_balance] )
+
+Loan Count = COUNTROWS ( fact_loans )
+
+Average Ticket Size = DIVIDE ( [Total Disbursed], [Loan Count] )
+
+PAR30 Balance =
+CALCULATE (
+    [Outstanding Balance],
+    fact_loans[arrears_status] IN { "31-90 days", "90+ days" }
+)
+
+PAR30 % = DIVIDE ( [PAR30 Balance], [Outstanding Balance] )
+
+PAR90 % =
+DIVIDE (
+    CALCULATE ( [Outstanding Balance], fact_loans[arrears_status] = "90+ days" ),
+    [Outstanding Balance]
+)
+
+Disbursed MoM % =
+VAR Prev = CALCULATE ( [Total Disbursed], DATEADD ( dim_date[date], -1, MONTH ) )
+RETURN DIVIDE ( [Total Disbursed] - Prev, Prev )
+
+Disbursed YTD = TOTALYTD ( [Total Disbursed], dim_date[date] )
+
+Branch PAR30 Rank =
+RANKX ( ALL ( dim_branch[branch] ), [PAR30 %],, DESC, DENSE )
+
+PAR30 vs Portfolio (pp) =
+[PAR30 %] - CALCULATE ( [PAR30 %], ALL ( dim_branch ) )

@@ -120,7 +120,7 @@ function doPost(e) {
   var out;
   try {
     var data = JSON.parse((e && e.postData && e.postData.contents) || '{}');
-    out = handleRegistration_(data);
+    out = (data && data.type === 'subscribe') ? handleSubscribe_(data) : handleRegistration_(data);
   } catch (err) {
     console.error(err);
     out = { ok: false, error: 'Something went wrong. Please try again or message us on WhatsApp.' };
@@ -137,7 +137,7 @@ function doGet(e) {
   try { quota = MailApp.getRemainingDailyQuota(); } catch (err) { quota = null; }
   var out = {
     ok: true, service: 'DataKlicks Hub registrations',
-    features: ['discount-codes', 'code-limits', 'payment-reminders', 'email-status', 'slot-limits', 'certificate-payments'],
+    features: ['discount-codes', 'code-limits', 'payment-reminders', 'email-status', 'slot-limits', 'certificate-payments', 'newsletter'],
     reminderTimerInstalled: timer,
     emailQuotaRemaining: quota,
     emailsSentToday: emailsSentToday_()
@@ -151,6 +151,65 @@ function doGet(e) {
       ready: !c.groupLinkProperty || !!groupLinkFor_(c) };
   }
   return ContentService.createTextOutput(JSON.stringify(out)).setMimeType(ContentService.MimeType.JSON);
+}
+
+/* ---------- Optional email list (resources and blog pages) ---------- */
+
+var SUBSCRIBER_HEADERS = ['Timestamp', 'Email', 'First name', 'Status', 'Consent', 'Page', 'Unsubscribed at'];
+var MAX_SUBSCRIBES_PER_HOUR = 60; // spam brake across the whole site
+
+// Saves a signup in the "Subscribers" sheet. Consent is required and recorded (when and from
+// which page). No email is sent, so signing up never uses the daily email allowance. To
+// unsubscribe someone, set their Status to "Unsubscribed" in the sheet.
+function handleSubscribe_(d) {
+  if (d && d.website) { return { ok: true, ignored: true }; } // honeypot
+
+  var email = String(d.email == null ? '' : d.email).trim().toLowerCase().slice(0, 120);
+  if (!/^[a-z0-9][a-z0-9._%+\-]*@[a-z0-9.\-]+\.[a-z]{2,}$/.test(email)) {
+    return { ok: false, error: 'Please enter a valid email address.' };
+  }
+  if (d.consent !== true) { return { ok: false, error: 'Please tick the box to agree to receive emails.' }; }
+  var first = clean_(String(d.firstName == null ? '' : d.firstName).trim().slice(0, 60));
+  var page = clean_(String(d.page == null ? '' : d.page).trim().slice(0, 120));
+
+  var lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sh = ss.getSheetByName('Subscribers');
+    if (!sh) {
+      sh = ss.insertSheet('Subscribers');
+      sh.appendRow(SUBSCRIBER_HEADERS);
+      sh.setFrozenRows(1);
+      sh.getRange(1, 1, 1, SUBSCRIBER_HEADERS.length).setFontWeight('bold');
+      sh.getRange('B2:C').setNumberFormat('@');
+      sh.getRange(2, 4, 2000, 1).setDataValidation(
+        SpreadsheetApp.newDataValidation().requireValueInList(['Subscribed', 'Unsubscribed'], true).build());
+    }
+    var last = sh.getLastRow();
+    var rows = last < 2 ? [] : sh.getRange(2, 1, last - 1, SUBSCRIBER_HEADERS.length).getValues();
+    var now = new Date();
+
+    var recent = rows.filter(function (r) { return (now - new Date(r[0])) < 3600 * 1000; }).length;
+    if (recent >= MAX_SUBSCRIBES_PER_HOUR) {
+      return { ok: false, error: 'Too many sign-ups right now. Please try again in a little while.' };
+    }
+
+    for (var i = 0; i < rows.length; i++) {
+      if (String(rows[i][1]).trim().toLowerCase() === email) {
+        if (rows[i][3] === 'Unsubscribed') { // she is back: record the new consent
+          sh.getRange(i + 2, 4).setValue('Subscribed');
+          sh.getRange(i + 2, 5).setValue(now);
+          sh.getRange(i + 2, 7).setValue('');
+        }
+        return { ok: true, subscribed: true };
+      }
+    }
+    sh.appendRow([now, email, first, 'Subscribed', now, page, '']);
+    return { ok: true, subscribed: true };
+  } finally {
+    lock.releaseLock();
+  }
 }
 
 /* ---------- Registration ---------- */
