@@ -1812,3 +1812,12 @@ details.exercise code, .article code { font-family: ui-monospace, SFMono-Regular
 .subscribe-msg { margin-top: 0.75rem; font-size: 0.9375rem; }
 .subscribe-msg.ok { color: #047857; }
 .subscribe-msg.err { color: #B91C1C; }
+
+/* Six menu items: tighten the header between the mobile menu and wide screens so it stays on one row */
+.nav-list li { white-space: nowrap; }
+@media (min-width: 901px) and (max-width: 1180px) {
+  .nav-list { gap: 1.125rem; }
+  .nav-list a { font-size: 0.875rem; }
+  .header-cta .btn { padding-left: 1rem; padding-right: 1rem; white-space: nowrap; }
+  .header-inner { gap: 1rem; }
+}
