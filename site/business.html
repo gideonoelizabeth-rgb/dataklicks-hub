@@ -71,7 +71,7 @@
     <p>We build AI-powered automations, train your staff, analyse your data and build digital solutions for businesses and organisations. Every engagement starts with a consultation, so what we propose fits how your business really works.</p>
     <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-top:1.25rem;">
       <a href="#consultation" class="btn btn-primary btn-lg">Request a Consultation</a>
-      <a href="https://wa.me/2348065371750?text=Hello%20DataKlicks%20Hub%2C%20I%27d%20like%20to%20discuss%20solutions%20for%20my%20business." target="_blank" rel="noopener" class="btn btn-secondary btn-lg">Talk to Us on WhatsApp</a>
+      <a href="mailto:dataklickshub@gmail.com?subject=Business%20consultation%20request" class="btn btn-secondary btn-lg">Email Us</a>
     </div>
   </div>
 </section>
@@ -171,7 +171,7 @@
       <details><summary>We are a small business. Can you still help?</summary><p>Yes. Many useful improvements are small and simple. We will recommend a sensible starting point for your size and budget.</p></details>
       <details><summary>Do you only build automations, or can you train our staff and analyse our data too?</summary><p>All four: automations, staff training, data analytics and digital solutions. You can use one service or combine several.</p></details>
       <details><summary>What about the safety of our data?</summary><p>We agree with you up front what we can access and how it is handled. We also advise against putting confidential company or customer data into public AI tools unless it is allowed, and we design solutions with that in mind.</p></details>
-      <details><summary>How do I get started?</summary><p>Fill in the form below, or message us on WhatsApp on +234 806 537 1750. We will get back to you to arrange the consultation.</p></details>
+      <details><summary>How do I get started?</summary><p>Fill in the form below, or email us at <a href="mailto:dataklickshub@gmail.com">dataklickshub@gmail.com</a>. We will reply to arrange the consultation.</p></details>
     </div>
   </div>
 </section>
@@ -200,7 +200,7 @@
           <input type="email" id="cf-email" name="email" required autocomplete="email" />
         </div>
         <div class="form-group">
-          <label for="cf-phone">Phone or WhatsApp number</label>
+          <label for="cf-phone">Phone number</label>
           <input type="tel" id="cf-phone" name="phone" required autocomplete="tel" />
         </div>
       </div>
@@ -223,18 +223,22 @@
         <label for="cf-consent">I agree to DataKlicks Hub contacting me about this enquiry. <a href="privacy.html" target="_blank" rel="noopener">Privacy notice</a></label>
       </div>
       <div class="form-error" id="cfError" role="alert"></div>
-      <button type="submit" class="btn btn-primary btn-lg" style="width:100%;">Send My Request on WhatsApp</button>
-      <p class="form-hint" style="text-align:center;margin-top:0.75rem;">Your request opens in WhatsApp so our team receives it straight away. Prefer email? Write to <a href="mailto:dataklickshub@gmail.com">dataklickshub@gmail.com</a>.</p>
+      <button type="submit" class="btn btn-primary btn-lg" style="width:100%;">Send My Request by Email</button>
+      <p class="form-hint" style="text-align:center;margin-top:0.75rem;">Your request opens as an email to <a href="mailto:dataklickshub@gmail.com">dataklickshub@gmail.com</a>. You can also write to us directly at any time.</p>
       <div class="form-success" id="cfSuccess" style="margin-top:1rem;"></div>
+      <a id="cfMailLink" href="#" hidden></a>
     </form>
   </div>
 </section>
 
 <script>
   (function () {
+    var TO = 'dataklickshub@gmail.com';
     var form = document.getElementById('consultForm');
     var err = document.getElementById('cfError');
     var ok = document.getElementById('cfSuccess');
+    var mailLink = document.getElementById('cfMailLink');
+    function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       err.classList.remove('show'); ok.classList.remove('show');
@@ -248,13 +252,18 @@
       if (!name || !org || !email || !phone || !message) { err.textContent = 'Please fill in your name, business, email, phone number and a short message.'; err.classList.add('show'); return; }
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { err.textContent = 'Please enter a valid email address.'; err.classList.add('show'); return; }
       if (!form.querySelector('[name="consent"]').checked) { err.textContent = 'Please tick the box to agree that we may contact you.'; err.classList.add('show'); return; }
-      var text = 'Hello DataKlicks Hub, I would like a business consultation.\n\n' +
+
+      var subject = 'Business consultation request: ' + org;
+      var body = 'Hello DataKlicks Hub,\n\nI would like to request a business consultation.\n\n' +
         'Name: ' + name + '\nBusiness: ' + org + '\nEmail: ' + email + '\nPhone: ' + phone + '\n' +
-        'Interested in: ' + (needs.length ? needs.join(', ') : 'Not specified') + '\n\n' + message;
-      var url = 'https://wa.me/2348065371750?text=' + encodeURIComponent(text);
-      ok.innerHTML = 'Thanks, ' + name.split(' ')[0].replace(/[<>&"]/g, '') + '. Your request is ready: send it in WhatsApp so our team receives it. If WhatsApp did not open, <a href="' + url + '" target="_blank" rel="noopener">send it from here</a>.';
+        'Interested in: ' + (needs.length ? needs.join(', ') : 'Not specified') + '\n\n' + message + '\n';
+      var mailto = 'mailto:' + TO + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+      var gmail = 'https://mail.google.com/mail/?view=cm&fs=1&to=' + encodeURIComponent(TO) + '&su=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+
+      ok.innerHTML = 'Thanks, ' + esc(name.split(' ')[0]) + '. Your email is ready to send to <strong>' + TO + '</strong>. If your email app did not open, <a href="' + gmail + '" target="_blank" rel="noopener">write it in Gmail</a> or copy your details and email us directly.';
       ok.classList.add('show');
-      window.open(url, '_blank', 'noopener');
+      mailLink.href = mailto;
+      mailLink.click(); // opens the visitor's email app with the message filled in
     });
   })();
 </script>
@@ -284,13 +293,8 @@
   </div>
 </footer>
 
-<a href="https://wa.me/2348065371750?text=Hello%20DataKlicks%20Hub%2C%20I%27d%20like%20to%20talk%20to%20your%20team." target="_blank" rel="noopener" class="whatsapp-float" aria-label="Chat with us on WhatsApp">
-  <span class="whatsapp-tooltip">Chat with us on WhatsApp</span>
-  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.626.712.226 1.36.194 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
-</a>
 
-
-<script src="js/main.js?v=20261016"></script>
+<script src="js/main.js?v=20261019"></script>
 <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
 <script defer src="/_vercel/insights/script.js"></script>
 </body>

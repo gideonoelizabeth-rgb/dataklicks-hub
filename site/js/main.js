@@ -114,6 +114,30 @@ if (contactForm) {
     const type = data.get('enquiry_type') || 'General enquiry';
     const message = data.get('message') || '';
     const org = data.get('organization') || '';
+    const escHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+    // Business enquiries go by email, to sound as official as they are. Class enquiries stay on WhatsApp.
+    const BUSINESS_TYPES = ['Corporate training', 'Business solutions & consulting'];
+    if (BUSINESS_TYPES.includes(type)) {
+      const to = 'dataklickshub@gmail.com';
+      const subject = `${type}: ${org || name}`;
+      const body = `Hello DataKlicks Hub,\n\nEnquiry type: ${type}\nName: ${name}\nEmail: ${email}${org ? `\nOrganization: ${org}` : ''}\n\n${message}\n`;
+      const mailto = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      const gmail = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(to)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      const ok = document.getElementById('formSuccess');
+      if (ok) {
+        ok.classList.add('show');
+        ok.innerHTML = `Thanks, ${escHtml(String(name).split(' ')[0])}. Your email is ready to send to <strong>${to}</strong>. If your email app did not open, <a href="${gmail}" target="_blank" rel="noopener">write it in Gmail</a>.`;
+      }
+      const a = document.createElement('a');
+      a.href = mailto;
+      a.hidden = true;
+      document.body.appendChild(a); // some browsers only follow a link that is on the page
+      a.click(); // opens the visitor's email app with the message filled in
+      a.remove();
+      contactForm.reset();
+      return;
+    }
 
     // Compose a WhatsApp message as the primary delivery channel
     const wa = `Hello DataKlicks Hub,%0A%0A*Enquiry type:* ${encodeURIComponent(type)}%0A*Name:* ${encodeURIComponent(name)}%0A*Email:* ${encodeURIComponent(email)}${org ? `%0A*Organization:* ${encodeURIComponent(org)}` : ''}%0A%0A${encodeURIComponent(message)}`;
